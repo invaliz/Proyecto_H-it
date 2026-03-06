@@ -1,0 +1,647 @@
+Plantilla 1 - Base de firmware STM32G431CBU6 para proyecto de impacto
+
+Objetivo de esta plantilla
+- Darte una estructura realista de proyecto para CubeIDE/HAL.
+- Separar adquisicion, procesado y UI en capas limpias.
+- Incluir comentarios detallados para que entiendas el por que de cada bloque.
+
+Nota de uso
+- Este archivo es una guia de arquitectura y codigo ejemplo.
+- Puedes copiar este contenido a tus archivos reales (main.c, app.c, app.h, etc).
+- Las funciones MX_* deben corresponder con lo generado por CubeMX.
+
+====================================================================
+1) Estructura recomendada de archivos
+====================================================================
+
+Recomendacion:
+- Core/Src/main.c              -> Entrada principal y bucle principal.
+- Core/Src/app.c               -> Maquina de estados de aplicacion.
+- Core/Inc/app.h               -> Tipos y APIs de app.
+- Core/Src/acq.c               -> Adquisicion (ADC/TIM/DMA).
+- Core/Inc/acq.h               -> API de adquisicion.
+- Core/Src/signal_proc.c       -> Calculos de metricas del golpe.
+- Core/Inc/signal_proc.h       -> API de procesado.
+- Core/Src/ui.c                -> Pantalla y presentacion.
+- Core/Inc/ui.h                -> API de interfaz.
+- Core/Src/calibration.c       -> Tara/calibracion.
+- Core/Inc/calibration.h       -> API de calibracion.
+
+Por que esta separacion:
+- Evita que main.c se convierta en un archivo gigante dificil de depurar.
+- Te permite testear cada parte por separado.
+- Cuando algo falla, sabes en que capa buscar primero.
+
+====================================================================
+2) Parametros globales de proyecto (ejemplo)
+====================================================================
+
+```c
+// sample_config.h
+#ifndef SAMPLE_CONFIG_H
+#define SAMPLE_CONFIG_H
+
+// Frecuencia de muestreo objetivo para curva de impacto.
+// 5 kSPS suele ser una base buena para golpes de 10-100 ms.
+#define SAMPLE_RATE_HZ           (5000U)
+
+// Ventana fija para comparar golpes con misma longitud.
+#define CAPTURE_WINDOW_MS        (80U)
+
+// Numero total de muestras: N = fs * T
+#define NSAMPLES                 ((SAMPLE_RATE_HZ * CAPTURE_WINDOW_MS) / 1000U)  // 400
+
+// Umbral de disparo inicial (cuentas ADC o unidades convertidas segun capa).
+// Debe ajustarse tras tara y ruido real del sistema.
+#define TRIGGER_THRESHOLD_RAW    (300U)
+
+// Umbral relativo para calcular duracion efectiva (50% del pico).
+#define EFFECTIVE_LEVEL_PERCENT  (50U)
+
+#endif
+```
+
+Por que definir esto en un header:
+- Centralizas parametros criticos y evitas valores "magicos" repartidos en el codigo.
+- Cambiar fs o ventana no obliga a buscar y reemplazar en 10 archivos.
+
+====================================================================
+3) Estado global de aplicacion
+====================================================================
+
+```c
+// app.h
+#ifndef APP_H
+#define APP_H
+
+#include <stdint.h>
+#include <stdbool.h>
+
+typedef enum {
+    ST_INIT = 0,
+    ST_TARE,
+    ST_ARMED,
+    ST_CAPTURE,
+    ST_PROCESS,
+    ST_DISPLAY,
+    ST_ERROR
+} app_state_t;
+
+typedef struct {
+    float fmax_N;
+    float fmean_eff_N;
+    float impulse_Ns;
+    float time_to_peak_ms;
+    float duration_eff_ms;
+    float rfd_max_N_per_s;
+} impact_metrics_t;
+
+void App_Init(void);
+void App_RunOnce(void);
+
+#endif
+```
+
+Por que usar enum + struct:
+- enum evita errores de estados escritos como numeros sueltos.
+- struct agrupa metricas coherentemente y simplifica pasarlas a UI/log.
+
+====================================================================
+4) main.c minimo y limpio
+====================================================================
+
+```c
+// main.c
+#include "main.h"
+#include "app.h"
+
+int main(void)
+{
+    // 1) Inicializacion base HAL.
+    // Necesaria para SysTick, clocks internos y utilidades HAL.
+    HAL_Init();
+
+    // 2) Configuracion de reloj principal (generado por CubeMX).
+    // Toda temporizacion posterior depende de esto.
+    SystemClock_Config();
+
+    // 3) Inicializacion de perifericos generados por CubeMX.
+    // Orden recomendado: GPIO, DMA, ADC, TIM, SPI/UART.
+    MX_GPIO_Init();
+    MX_DMA_Init();
+    MX_ADC1_Init();
+    MX_TIM6_Init();
+    MX_SPI1_Init();
+
+    // 4) Inicializacion de tu aplicacion de alto nivel.
+    App_Init();
+
+    // 5) Bucle principal: no bloqueante, dirigido por estados/eventos.
+    while (1)
+    {
+        App_RunOnce();
+    }
+}
+```
+
+Por que no meter toda la logica en main:
+- main debe ser simple; eso facilita migraciones y debug.
+- Si todo vive en main, el mantenimiento se vuelve costoso muy rapido.
+
+====================================================================
+5) Maquina de estados de aplicacion
+====================================================================
+
+```c
+// app.c
+#include "app.h"
+#include "acq.h"
+#include "signal_proc.h"
+#include "ui.h"
+#include "calibration.h"
+#include "sample_config.h"
+
+static volatile app_state_t g_state = ST_INIT;
+static volatile uint8_t g_reset_requested = 0;
+static impact_metrics_t g_metrics;
+
+void App_RequestReset(void)
+{
+    // Esta funcion se llamara desde EXTI callback (ISR segura).
+    // Solo marca bandera para evitar trabajo pesado dentro de interrupcion.
+    g_reset_requested = 1;
+}
+
+void App_Init(void)
+{
+    // Inicializa subsistemas de aplicacion.
+    UI_Init();
+    ACQ_Init();
+    CAL_Init();
+
+    // Estado inicial explicito.
+    g_state = ST_INIT;
+}
+
+void App_RunOnce(void)
+{
+    // Prioridad global: reset del usuario, salvo si estas en tara critica.
+    if (g_reset_requested && g_state != ST_TARE) {
+        g_reset_requested = 0;
+        g_state = ST_TARE;
+    }
+
+    switch (g_state)
+    {
+    case ST_INIT:
+        UI_ShowStatusRed();
+        // Transicion inmediata a tara para garantizar baseline limpio.
+        g_state = ST_TARE;
+        break;
+
+    case ST_TARE:
+        UI_ShowStatusRed();
+        if (CAL_DoTare()) {
+            // Si tara valida, pasamos a espera de impacto.
+            g_state = ST_ARMED;
+            UI_ShowStatusGreen();
+        } else {
+            // Si hay ruido excesivo o error ADC, estado de error.
+            g_state = ST_ERROR;
+        }
+        break;
+
+    case ST_ARMED:
+        // En armado NO bloquees. Solo vigilas trigger.
+        if (ACQ_CheckTrigger(TRIGGER_THRESHOLD_RAW)) {
+            g_state = ST_CAPTURE;
+        }
+        break;
+
+    case ST_CAPTURE:
+        // Captura de ventana fija (N muestras) para comparabilidad.
+        if (ACQ_StartCaptureAndWait(NSAMPLES)) {
+            g_state = ST_PROCESS;
+        } else {
+            g_state = ST_ERROR;
+        }
+        break;
+
+    case ST_PROCESS:
+        if (PROC_ComputeMetrics(ACQ_GetBuffer(), NSAMPLES, SAMPLE_RATE_HZ, &g_metrics)) {
+            g_state = ST_DISPLAY;
+        } else {
+            g_state = ST_ERROR;
+        }
+        break;
+
+    case ST_DISPLAY:
+        UI_DrawImpactResult(ACQ_GetBuffer(), NSAMPLES, &g_metrics);
+        UI_ShowMessage("Pulsa boton para nuevo golpe");
+        // Se queda aqui hasta reset.
+        break;
+
+    case ST_ERROR:
+        UI_ShowError("Error de tara/captura/procesado");
+        // Salida por reset.
+        break;
+
+    default:
+        g_state = ST_ERROR;
+        break;
+    }
+}
+```
+
+Por que este diseno funciona bien:
+- Estados simples y transiciones claras.
+- Facil de depurar con breakpoints por estado.
+- Facil de extender (guardar datos, BLE, SD) sin romper lo existente.
+
+====================================================================
+6) Adquisicion (timer + ADC + DMA)
+====================================================================
+
+```c
+// acq.h
+#ifndef ACQ_H
+#define ACQ_H
+
+#include <stdint.h>
+#include <stdbool.h>
+
+void ACQ_Init(void);
+bool ACQ_CheckTrigger(uint16_t threshold_raw);
+bool ACQ_StartCaptureAndWait(uint32_t nsamples);
+const uint16_t* ACQ_GetBuffer(void);
+
+#endif
+```
+
+```c
+// acq.c
+#include "acq.h"
+#include "main.h"
+
+// Buffer estatico: evita malloc en embebido.
+static uint16_t s_adc_buf[512];  // Ajustar al maximo esperado.
+static volatile uint8_t s_capture_done = 0;
+
+void ACQ_Init(void)
+{
+    // Aqui puedes arrancar ADC en modo continuo ligero para pretrigger,
+    // o dejarlo parado hasta trigger segun consumo/estrategia.
+}
+
+bool ACQ_CheckTrigger(uint16_t threshold_raw)
+{
+    // Version simple: leer una muestra "rapida" y comparar umbral.
+    // En produccion: filtrar y usar histeresis para evitar falsos disparos.
+    uint16_t sample = 0;
+
+    HAL_ADC_Start(&hadc1);
+    if (HAL_ADC_PollForConversion(&hadc1, 2) == HAL_OK) {
+        sample = (uint16_t)HAL_ADC_GetValue(&hadc1);
+    }
+    HAL_ADC_Stop(&hadc1);
+
+    return (sample >= threshold_raw);
+}
+
+bool ACQ_StartCaptureAndWait(uint32_t nsamples)
+{
+    if (nsamples > (sizeof(s_adc_buf)/sizeof(s_adc_buf[0]))) {
+        return false;
+    }
+
+    s_capture_done = 0;
+
+    // Recomendado: ADC configurado con trigger externo de TIM6 TRGO.
+    if (HAL_ADC_Start_DMA(&hadc1, (uint32_t*)s_adc_buf, nsamples) != HAL_OK) {
+        return false;
+    }
+
+    // Arranca timer que marca fs exacta.
+    if (HAL_TIM_Base_Start(&htim6) != HAL_OK) {
+        HAL_ADC_Stop_DMA(&hadc1);
+        return false;
+    }
+
+    // Espera activa simple para plantilla.
+    // En version final conviene no bloquear (usar estado/evento).
+    uint32_t t0 = HAL_GetTick();
+    while (!s_capture_done) {
+        if ((HAL_GetTick() - t0) > 200U) {
+            HAL_TIM_Base_Stop(&htim6);
+            HAL_ADC_Stop_DMA(&hadc1);
+            return false;
+        }
+    }
+
+    HAL_TIM_Base_Stop(&htim6);
+    HAL_ADC_Stop_DMA(&hadc1);
+    return true;
+}
+
+const uint16_t* ACQ_GetBuffer(void)
+{
+    return s_adc_buf;
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+    if (hadc->Instance == ADC1) {
+        // Solo bandera: ISR corta.
+        s_capture_done = 1;
+    }
+}
+```
+
+Por que es importante este bloque:
+- Garantiza muestreo uniforme (clave para analisis temporal).
+- Separa captura de procesado y evita mezclar responsabilidades.
+
+====================================================================
+7) Procesado de senal y metricas
+====================================================================
+
+```c
+// signal_proc.h
+#ifndef SIGNAL_PROC_H
+#define SIGNAL_PROC_H
+
+#include <stdint.h>
+#include <stdbool.h>
+#include "app.h"
+
+bool PROC_ComputeMetrics(const uint16_t *raw, uint32_t n, uint32_t fs_hz, impact_metrics_t *out);
+
+#endif
+```
+
+```c
+// signal_proc.c
+#include "signal_proc.h"
+
+static float RawToForceN(uint16_t raw)
+{
+    // Placeholder de conversion.
+    // Sustituir por calibracion real: F = gain * (V - offset).
+    return (float)raw * 0.5f;
+}
+
+bool PROC_ComputeMetrics(const uint16_t *raw, uint32_t n, uint32_t fs_hz, impact_metrics_t *out)
+{
+    if (!raw || !out || n < 2U || fs_hz == 0U) {
+        return false;
+    }
+
+    const float dt = 1.0f / (float)fs_hz;
+    float fmax = 0.0f;
+    uint32_t i_peak = 0U;
+    float impulse = 0.0f;
+    float rfd_max = 0.0f;
+
+    for (uint32_t i = 0; i < n; i++) {
+        float f = RawToForceN(raw[i]);
+        if (f > fmax) {
+            fmax = f;
+            i_peak = i;
+        }
+        impulse += f * dt;
+
+        if (i > 0U) {
+            float fp = RawToForceN(raw[i - 1U]);
+            float rfd = (f - fp) / dt;
+            if (rfd > rfd_max) {
+                rfd_max = rfd;
+            }
+        }
+    }
+
+    // Duracion efectiva: tiempo por encima de 50% del pico.
+    const float thr = 0.5f * fmax;
+    uint32_t neff = 0U;
+    float sum_eff = 0.0f;
+    for (uint32_t i = 0; i < n; i++) {
+        float f = RawToForceN(raw[i]);
+        if (f >= thr) {
+            neff++;
+            sum_eff += f;
+        }
+    }
+
+    out->fmax_N = fmax;
+    out->fmean_eff_N = (neff > 0U) ? (sum_eff / (float)neff) : 0.0f;
+    out->impulse_Ns = impulse;
+    out->time_to_peak_ms = (1000.0f * (float)i_peak) / (float)fs_hz;
+    out->duration_eff_ms = (1000.0f * (float)neff) / (float)fs_hz;
+    out->rfd_max_N_per_s = rfd_max;
+
+    return true;
+}
+```
+
+Por que asi y no mas complejo al inicio:
+- Te da metricas utiles ya, sin bloquear por modelado avanzado.
+- Una vez estable, puedes mejorar filtros y conversion con datos reales.
+
+====================================================================
+8) UI y presentacion
+====================================================================
+
+```c
+// ui.h
+#ifndef UI_H
+#define UI_H
+
+#include <stdint.h>
+#include "app.h"
+
+void UI_Init(void);
+void UI_ShowStatusRed(void);
+void UI_ShowStatusGreen(void);
+void UI_ShowError(const char *msg);
+void UI_ShowMessage(const char *msg);
+void UI_DrawImpactResult(const uint16_t *raw, uint32_t n, const impact_metrics_t *m);
+
+#endif
+```
+
+```c
+// ui.c (esqueleto)
+#include "ui.h"
+
+void UI_Init(void) {}
+void UI_ShowStatusRed(void) {}
+void UI_ShowStatusGreen(void) {}
+void UI_ShowError(const char *msg) {(void)msg;}
+void UI_ShowMessage(const char *msg) {(void)msg;}
+
+void UI_DrawImpactResult(const uint16_t *raw, uint32_t n, const impact_metrics_t *m)
+{
+    // 1) Limpiar area de grafica.
+    // 2) Dibujar curva normalizada.
+    // 3) Mostrar metricas m->fmax_N, m->impulse_Ns, etc.
+    (void)raw;
+    (void)n;
+    (void)m;
+}
+```
+
+Por que un modulo UI separado:
+- La pantalla cambia mucho durante el proyecto.
+- Si la UI esta acoplada a adquisicion, cualquier cambio rompe todo.
+
+====================================================================
+9) Interrupcion de boton (EXTI) y debounce
+====================================================================
+
+```c
+// callback en main.c o archivo de callbacks
+extern void App_RequestReset(void);
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == GPIO_PIN_13) {
+        // Debounce por tiempo minimo entre pulsos.
+        static uint32_t last_ms = 0;
+        uint32_t now = HAL_GetTick();
+
+        if ((now - last_ms) > 50U) {
+            App_RequestReset();
+            last_ms = now;
+        }
+    }
+}
+```
+
+Por que debounce aqui:
+- Un boton real rebota y puede disparar multiples eventos.
+- Sin debounce tu FSM puede resetearse varias veces seguidas.
+
+====================================================================
+10) Configuracion de timer para 5 kSPS (ejemplo directo)
+====================================================================
+
+Suposiciones:
+- Clock de timer = 170 MHz.
+- Quieres fs = 5 kHz para trigger ADC.
+
+Calculo:
+- Escoges PSC = 169 => contador a 1 MHz.
+- Luego ARR = 199 => update a 1 MHz / 200 = 5 kHz.
+
+```c
+// En MX_TIM6_Init o ajuste posterior
+htim6.Init.Prescaler = 169;
+htim6.Init.Period = 199;
+```
+
+Por que esta pareja PSC/ARR es comoda:
+- Trabajar con 1 MHz simplifica calculos mentales y depuracion.
+
+====================================================================
+11) Donde meter calibracion real
+====================================================================
+
+```c
+// calibration.h
+#ifndef CALIBRATION_H
+#define CALIBRATION_H
+
+#include <stdbool.h>
+
+typedef struct {
+    float gain;
+    float offset;
+} cal_coeff_t;
+
+void CAL_Init(void);
+bool CAL_DoTare(void);
+cal_coeff_t CAL_Get(void);
+
+#endif
+```
+
+```c
+// calibration.c (esqueleto)
+#include "calibration.h"
+
+static cal_coeff_t s_cal = { .gain = 1.0f, .offset = 0.0f };
+
+void CAL_Init(void)
+{
+    // Cargar coeficientes desde flash si existen.
+}
+
+bool CAL_DoTare(void)
+{
+    // Medir baseline con N muestras sin impacto.
+    // Si ruido excesivo, devolver false.
+    s_cal.offset = 0.0f;
+    return true;
+}
+
+cal_coeff_t CAL_Get(void)
+{
+    return s_cal;
+}
+```
+
+Por que esto importa:
+- Sin calibracion, tus valores absolutos de fuerza son orientativos, no metrologicos.
+
+====================================================================
+12) Lista de verificacion para primer encendido
+====================================================================
+
+Checklist practico:
+- SWD funcionando (puedes programar y hacer debug).
+- UART debug imprime estado actual.
+- Timer genera periodo correcto (validado con pin toggle y osciloscopio).
+- ADC entrega datos coherentes en reposo.
+- Trigger detecta impacto sin falsos positivos excesivos.
+- Captura completa N muestras siempre.
+- UI muestra grafica y metricas sin bloquear captura.
+
+====================================================================
+13) Errores comunes y como evitarlos
+====================================================================
+
+1) Error: hacer calculos pesados en ISR.
+- Solucion: en ISR solo bandera; procesa en estado ST_PROCESS.
+
+2) Error: mezclar unidades (kg, N, cuentas ADC).
+- Solucion: define una capa de conversion unica y documentada.
+
+3) Error: saturar ADC/amplificador en golpe fuerte.
+- Solucion: ajustar ganancia y verificar margen de headroom.
+
+4) Error: bloqueo por pantalla lenta.
+- Solucion: separar captura (tiempo critico) de dibujo (no critico).
+
+5) Error: no registrar errores.
+- Solucion: codigos de error y logs minimos por UART.
+
+====================================================================
+14) Mejoras futuras sobre esta plantilla
+====================================================================
+
+- Doble buffer DMA para captura continua.
+- Filtros digitales mas avanzados (IIR/Biquad).
+- Guardado de sesiones en SPI flash o SD.
+- Perfil de usuario y estadisticas por entrenamiento.
+- Calibracion multipunto guiada en pantalla.
+
+====================================================================
+15) Resumen corto
+====================================================================
+
+Esta plantilla te da:
+- Arquitectura limpia y escalable.
+- Maquina de estados lista para tu flujo.
+- Camino correcto para adquisicion determinista: Timer + ADC + DMA.
+- Base de metricas de impacto para empezar a iterar rapido.
+
+Si implementas esta base y validas cada capa por separado, vas a avanzar mucho mas rapido y con menos errores de diseno.

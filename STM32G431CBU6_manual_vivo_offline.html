@@ -1,0 +1,1990 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>STM32G431CBU6 - Manual Vivo Offline</title>
+  <style>
+    :root {
+      --bg1: #08090c;
+      --bg2: #0e1015;
+      --panel: #121419;
+      --panel2: #171a21;
+      --ink: #f3efe6;
+      --muted: #e4dac8;
+      --line: #4b4460;
+      --accent: #d8c6ff;
+      --accent2: #7c5ac6;
+      --ok: #bda9ff;
+      --warn: #e8d9b6;
+      --danger: #cda9ff;
+      --code: #0d0f14;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 10%, #16171d 0%, transparent 38%),
+        radial-gradient(circle at 92% 16%, #1d1828 0%, transparent 34%),
+        linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      font-family: "Bahnschrift", "Segoe UI", "Verdana", sans-serif;
+      font-size: 17px;
+      line-height: 1.62;
+      overscroll-behavior-y: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, #121419 0%, #0e1015 100%);
+      padding: 16px;
+    }
+
+    .brand {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #161922;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.18rem;
+      letter-spacing: 0.3px;
+      color: #f5f5f5;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .quick {
+      border: 1px solid var(--line);
+      background: #141820;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .quick label { display: block; margin-bottom: 6px; font-weight: 600; }
+
+    .quick input {
+      width: 100%;
+      border: 1px solid #4e4664;
+      border-radius: 8px;
+      padding: 7px 8px;
+      font: inherit;
+      background: #0d1118;
+      color: var(--ink);
+    }
+
+    nav a {
+      display: block;
+      margin: 5px 0;
+      border: 1px solid #4d4562;
+      border-radius: 9px;
+      background: #131721;
+      color: #f5f5f5;
+      text-decoration: none;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+      transition: background 140ms ease, border-color 140ms ease, transform 120ms ease, box-shadow 140ms ease;
+    }
+
+    nav a:hover, nav a:focus {
+      outline: none;
+      transform: translateX(2px);
+      border-color: #e2d4ff;
+      background: #2a2140;
+      box-shadow: 0 2px 10px rgba(182, 132, 255, 0.38);
+    }
+
+    nav a.active {
+      border: 2px solid #ffffff;
+      background: linear-gradient(90deg, #3a2b58 0%, #2f2348 100%);
+      color: #f4e6b8;
+      font-weight: 700;
+      outline: none;
+      transform: none;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 10px rgba(179, 132, 255, 0.28), 0 2px 8px rgba(160, 120, 255, 0.25);
+    }
+
+    nav a.active:hover,
+    nav a.active:focus {
+      transform: none;
+      border-color: #ffffff;
+      background: linear-gradient(90deg, #3a2b58 0%, #2f2348 100%);
+      box-shadow: 0 0 10px rgba(179, 132, 255, 0.28), 0 2px 8px rgba(160, 120, 255, 0.25);
+    }
+
+    .legend {
+      margin-top: 12px;
+      border-left: 4px solid var(--accent);
+      background: #141923;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 0.92rem;
+    }
+
+    main {
+      width: min(100%, 1580px);
+      margin: 0 auto;
+      padding: 18px 20px 38px;
+    }
+
+    section {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      border-bottom: 1px dashed #574d70;
+      color: #f5f5f5;
+      letter-spacing: 0.22px;
+      padding-bottom: 6px;
+      scroll-margin-top: 16px;
+      font-size: 1.22rem;
+    }
+
+    h3 {
+      margin: 12px 0 7px;
+      color: #f0e8d8;
+      font-size: 1.06rem;
+    }
+
+    p, li, td, th, label, .result, .note, .legend, .quick, .footer {
+      color: var(--ink);
+    }
+
+    p { margin: 8px 0; }
+
+    ul { margin: 8px 0; padding-left: 18px; }
+
+    .chips { margin: 8px 0; }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid #5a5071;
+      border-radius: 999px;
+      background: #1d2029;
+      padding: 2px 9px;
+      margin: 2px 4px 2px 0;
+      font-size: 0.82rem;
+    }
+
+    .note {
+      margin: 10px 0;
+      border: 1px solid #564d6e;
+      border-radius: 10px;
+      background: #181c24;
+      padding: 10px;
+      font-size: 0.92rem;
+    }
+
+    .ok { border-left: 4px solid var(--ok); }
+    .warn { border-left: 4px solid var(--warn); }
+    .danger { border-left: 4px solid var(--danger); }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 9px 0;
+      font-size: 0.96rem;
+      background: #151a23;
+    }
+
+    th, td {
+      border: 1px solid #4e4665;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    td {
+      background: #171c26;
+    }
+
+    th {
+      background: #1a1e26;
+      color: #f0e2c4;
+    }
+
+    code, pre { font-family: "Consolas", "Lucida Console", monospace; }
+
+    pre {
+      margin: 9px 0;
+      background: var(--code);
+      color: #f6f0e4;
+      border: 1px solid #4e4665;
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .formula {
+      margin: 9px 0;
+      border: 1px dashed #5a5071;
+      border-radius: 8px;
+      background: #151922;
+      padding: 8px;
+      font-family: "Consolas", "Lucida Console", monospace;
+      overflow: auto;
+      color: #f6f0e4;
+    }
+
+    .diagram {
+      border: 1px solid #554c6d;
+      border-radius: 10px;
+      background: #141922;
+      padding: 8px;
+      overflow: auto;
+    }
+
+    .calc {
+      border: 1px solid #554c6d;
+      border-radius: 12px;
+      background: var(--panel2);
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    .calc .row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .calc label {
+      display: block;
+      font-size: 0.9rem;
+      color: #efe6d4;
+      margin-bottom: 4px;
+    }
+
+    .calc input, .calc select {
+      width: 100%;
+      border: 1px solid #554c6d;
+      border-radius: 8px;
+      background: #0b0f16;
+      padding: 6px 7px;
+      font: inherit;
+      color: var(--ink);
+    }
+
+    .btn {
+      display: inline-block;
+      border: 1px solid #b89cff;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #7a5fd4 0%, #664bbf 100%);
+      color: #f5ecd8;
+      font-weight: 700;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn:hover { filter: brightness(1.02); }
+
+    .result {
+      margin-top: 8px;
+      border: 1px solid #554c6d;
+      border-radius: 8px;
+      background: #121722;
+      padding: 8px;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+    }
+
+    .checklist label {
+      display: block;
+      border: 1px solid #554c6d;
+      border-radius: 8px;
+      background: #141922;
+      padding: 8px;
+      margin: 6px 0;
+      cursor: pointer;
+    }
+
+    .checklist input { margin-right: 7px; }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid #665a81;
+      border-radius: 6px;
+      background: #1c212c;
+      padding: 1px 6px;
+      font-family: "Consolas", "Lucida Console", monospace;
+      font-size: 0.82rem;
+      color: #f3e6ca;
+    }
+
+    a {
+      color: #f5f5f5;
+    }
+
+    a:hover {
+      color: #ffffff;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 0.86rem;
+      padding: 4px;
+    }
+
+    .hidden-by-filter { display: none !important; }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+      main { padding: 12px; }
+      .calc .row { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+      .grid3 { grid-template-columns: repeat(2, minmax(200px, 1fr)); }
+    }
+
+    @media (max-width: 700px) {
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .calc .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <h1>Manual Vivo STM32G431CBU6</h1>
+        <p>Version offline, modular y ampliable. Basado en el tutorial previo, extendido a arquitectura completa del MCU.</p>
+      </div>
+
+      <div class="quick">
+        <label for="navFilter">Filtrar apartados</label>
+        <input id="navFilter" type="text" placeholder="Ej: timer, adc, watchdog..." />
+      </div>
+
+      <nav id="sideNav">
+        <a href="#sec-00">00. Uso y fuentes oficiales</a>
+        <a href="#sec-00b">00B. Siglas y vocabulario base</a>
+        <a href="#sec-00c">00C. Electricidad aplicada base</a>
+        <a href="#sec-01">01. Vision general del MCU</a>
+        <a href="#sec-02">02. Arranque y mapa de memoria</a>
+        <a href="#sec-03">03. Clock tree y PLL</a>
+        <a href="#sec-04">04. GPIO y EXTI</a>
+        <a href="#sec-05">05. NVIC e interrupciones</a>
+        <a href="#sec-06">06. Timers (tipos y registros)</a>
+        <a href="#sec-07">07. PWM, capture y encoder</a>
+        <a href="#sec-08">08. ADC, analogico y DMA</a>
+        <a href="#sec-09">09. DAC, COMP y OPAMP</a>
+        <a href="#sec-10">10. USART, SPI, I2C y buses</a>
+        <a href="#sec-11">11. RTC, backup y low power</a>
+        <a href="#sec-12">12. Watchdogs y resiliencia</a>
+        <a href="#sec-13">13. Registros: metodo practico</a>
+        <a href="#sec-14">14. HAL vs LL vs registros</a>
+        <a href="#sec-15">15. Faults y debug profesional</a>
+        <a href="#sec-16">16. Seguridad y proteccion FW</a>
+        <a href="#sec-17">17. Hardware y PCB para STM32</a>
+        <a href="#sec-18">18. Formulas y calculadoras</a>
+        <a href="#sec-19">19. Recetas rapidas de firmware</a>
+        <a href="#sec-20">20. Checklist por nivel</a>
+        <a href="#sec-21">21. Roadmap de aprendizaje</a>
+        <a href="#sec-22">22. DMA/DMAMUX avanzado</a>
+        <a href="#sec-23">23. Linker y organizacion FW</a>
+        <a href="#sec-24">24. Bootloader y actualizacion</a>
+        <a href="#sec-25">25. CRC, RNG y UID</a>
+        <a href="#sec-26">26. Flujo de herramientas</a>
+      </nav>
+
+      <div class="legend">
+        Referencias base: <strong>datasheet STM32G431CB</strong>, <strong>RM0440</strong>, notas de aplicacion ST. Este manual no sustituye esos documentos; los organiza para estudio y ejecucion.
+      </div>
+    </aside>
+
+    <main id="contentRoot">
+      <section id="sec-00" data-title="fuentes oficiales docs rm0440 datasheet" data-keys="st,documentacion,manual,referencia,errata,product-page,especificaciones,hoja-de-datos,fuentes,oficial">
+        <h2>00) Uso del manual y fuentes oficiales</h2>
+        <p>Este manual esta disenado para ser un documento vivo offline: puedes estudiarlo sin internet, usar calculadoras locales, marcar progreso y volver a continuar donde lo dejaste.</p>
+
+        <h3>Fuentes oficiales ST recomendadas</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Uso</th>
+              <th>Enlace oficial</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Product page STM32G431CB</td>
+              <td>Resumen de features, estado de producto, enlaces a docs</td>
+              <td>https://www.st.com/en/microcontrollers-microprocessors/stm32g431cb.html</td>
+            </tr>
+            <tr>
+              <td>Datasheet STM32G431CB</td>
+              <td>Pinout, electrical characteristics, package, limites</td>
+              <td>https://www.st.com/resource/en/datasheet/stm32g431cb.pdf</td>
+            </tr>
+            <tr>
+              <td>Reference Manual RM0440</td>
+              <td>Registros detallados de RCC, TIM, ADC, DMA, NVIC...</td>
+              <td>https://www.st.com/resource/en/reference_manual/rm0440-stm32g4-series-advanced-armbased-32bit-mcus-stmicroelectronics.pdf</td>
+            </tr>
+            <tr>
+              <td>Errata sheet (serie STM32G4)</td>
+              <td>Limitaciones conocidas y workarounds</td>
+              <td>Buscar "STM32G4 errata" en st.com y usar la revision vigente</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note warn">
+          Regla de oro: cualquier valor limite, timing maximo, tolerancia, voltage range o comportamiento de bit se valida en la revision exacta de datasheet/RM/errata que tengas en tu proyecto.
+        </div>
+      </section>
+
+      <section id="sec-00b" data-title="siglas vocabulario glosario prerrequisitos conceptos base" data-keys="acronimos,terminologia,basico,contexto,intro,definiciones,embedded,mcu,firmware,electronica">
+        <h2>00B) Siglas y vocabulario base (contexto antes de empezar)</h2>
+        <p>Este bloque es una "puesta en contexto" rapida: de donde venimos, que terminos vas a encontrar y que necesitas tener claro para aprovechar el resto del manual sin perderte.</p>
+
+        <div class="note ok">
+          Idea clave: no hace falta memorizar todo. Si una sigla aparece y no te suena, vuelve aqui, revisa la definicion corta y continua.
+        </div>
+
+        <h3>Siglas esenciales (lectura rapida)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Sigla</th>
+              <th>Significa</th>
+              <th>Definicion corta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>MCU</td><td>Microcontroller Unit</td><td>Microcontrolador completo (CPU + memoria + perifericos).</td></tr>
+            <tr><td>CPU</td><td>Central Processing Unit</td><td>Nucleo que ejecuta instrucciones.</td></tr>
+            <tr><td>RCC</td><td>Reset and Clock Control</td><td>Bloque que controla relojes y reset de perifericos.</td></tr>
+            <tr><td>GPIO</td><td>General Purpose Input/Output</td><td>Pines digitales configurables como entrada/salida.</td></tr>
+            <tr><td>AF</td><td>Alternate Function</td><td>Funcion alternativa de un pin (SPI, UART, TIM, etc.).</td></tr>
+            <tr><td>NVIC</td><td>Nested Vectored Interrupt Controller</td><td>Controlador de interrupciones y prioridades.</td></tr>
+            <tr><td>ISR/IRQ</td><td>Interrupt Service Routine / Interrupt Request</td><td>Evento de interrupcion y rutina que lo atiende.</td></tr>
+            <tr><td>TIM</td><td>Timer</td><td>Temporizador/contador hardware de alta precision.</td></tr>
+            <tr><td>PSC / ARR</td><td>Prescaler / Auto-Reload Register</td><td>Registros clave para fijar frecuencia y periodo de timer.</td></tr>
+            <tr><td>PWM</td><td>Pulse Width Modulation</td><td>Control de duty cycle para potencia/control de actuadores.</td></tr>
+            <tr><td>ADC / DAC</td><td>Analog-Digital / Digital-Analog Converter</td><td>Conversion entre mundo analogico y digital.</td></tr>
+            <tr><td>DMA</td><td>Direct Memory Access</td><td>Transfiere datos periferico-memoria sin cargar CPU.</td></tr>
+            <tr><td>SPI / I2C / UART</td><td>Protocolos de comunicacion</td><td>Interfaces serie para hablar con sensores/modulos.</td></tr>
+            <tr><td>RTC</td><td>Real-Time Clock</td><td>Reloj/calendario de bajo consumo.</td></tr>
+            <tr><td>IWDG / WWDG</td><td>Independent/Window Watchdog</td><td>Supervisores para recuperar firmware bloqueado.</td></tr>
+            <tr><td>RDP / WRP / PCROP</td><td>Protecciones de Flash</td><td>Mecanismos de seguridad para firmware.</td></tr>
+            <tr><td>V / I / R / P</td><td>Voltaje, corriente, resistencia, potencia</td><td>Magnitudes electricas basicas que determinan seguridad y funcionamiento.</td></tr>
+            <tr><td>VDD / VDDA</td><td>Alimentacion digital / analogica</td><td>Raíles de energia del MCU; deben cuidarse para evitar ruido.</td></tr>
+            <tr><td>GND</td><td>Ground</td><td>Referencia de potencial comun del circuito.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Vocabulario minimo que conviene dominar</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Termino</th>
+              <th>Que significa en la practica</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Clock tree</td><td>Mapa de como se distribuyen los relojes internos; afecta TODO (timers, ADC, buses).</td></tr>
+            <tr><td>Latencia</td><td>Tiempo desde que ocurre un evento hasta que el sistema responde.</td></tr>
+            <tr><td>Jitter</td><td>Variacion no deseada del tiempo entre eventos periodicos.</td></tr>
+            <tr><td>Muestreo (fs)</td><td>Cuantas muestras por segundo tomas de una senal.</td></tr>
+            <tr><td>Periodo (T)</td><td>Tiempo de un ciclo. Relacion: T = 1/f.</td></tr>
+            <tr><td>Prescaler</td><td>Divisor de reloj para bajar frecuencia de trabajo del periferico.</td></tr>
+            <tr><td>Trigger</td><td>Evento que dispara una accion (ej: timer dispara ADC).</td></tr>
+            <tr><td>Buffer</td><td>Bloque de memoria donde guardas datos antes de procesar/enviar.</td></tr>
+            <tr><td>Polling</td><td>Consultar estado en bucle en vez de usar interrupcion.</td></tr>
+            <tr><td>Debounce</td><td>Filtrado de rebotes mecanicos de botones/senales.</td></tr>
+            <tr><td>Clipping / Saturacion</td><td>La senal supera rango y se recorta; los datos dejan de ser fiables.</td></tr>
+            <tr><td>Throughput</td><td>Cantidad de datos por unidad de tiempo que realmente soporta el sistema.</td></tr>
+            <tr><td>Ley de Ohm</td><td>Relacion fundamental: V = I * R.</td></tr>
+            <tr><td>Divisor resistivo</td><td>Dos resistencias para reducir un voltaje de entrada.</td></tr>
+            <tr><td>Pull-up / Pull-down</td><td>Resistencias para fijar estado logico estable cuando no hay señal activa.</td></tr>
+            <tr><td>Tolerancia</td><td>Error maximo esperado de un componente (ej: resistencia 1%).</td></tr>
+            <tr><td>Wattage</td><td>Potencia que puede disipar una resistencia sin dañarse.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Checklist mental antes de seguir al punto 1</h3>
+        <ul>
+          <li>Entiendo que el reloj del sistema afecta a timers, ADC y comunicaciones.</li>
+          <li>Distingo entre interrupcion (IRQ), rutina (ISR) y prioridad (NVIC).</li>
+          <li>Se que un timer se ajusta con PSC/ARR para lograr frecuencia objetivo.</li>
+          <li>Tengo claro que DMA ayuda a capturar datos sin bloquear CPU.</li>
+          <li>Acepto que todo valor "exacto" se valida en datasheet + RM + errata.</li>
+        </ul>
+      </section>
+
+      <section id="sec-00c" data-title="fundamentos electricos voltaje corriente resistencia potencia" data-keys="ohm,divisor,resistencia,voltaje,intensidad,corriente,potencia,pull-up,pull-down,tolerancia">
+        <h2>00C) Electricidad aplicada base (lo que conviene dominar)</h2>
+        <p>Antes de configurar perifericos, necesitas controlar estas reglas electricas. Muchos fallos "de firmware" son en realidad problemas de nivel de tension, corriente o disipacion.</p>
+
+        <h3>Magnitudes basicas y formulas utiles</h3>
+        <div class="formula">
+          V = I * R
+          <br />I = V / R
+          <br />P = V * I = I^2 * R = V^2 / R
+          <br />Vout (divisor) = Vin * (R2 / (R1 + R2))
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th>Que debes recordar</th>
+              <th>Riesgo si lo ignoras</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Niveles logicos</td>
+              <td>STM32G431 trabaja tipicamente a 3.3 V en GPIO.</td>
+              <td>Aplicar 5 V directos en pin no tolerante puede dañar el MCU.</td>
+            </tr>
+            <tr>
+              <td>Corriente por pin</td>
+              <td>Respetar limites por pin y total de puerto/dispositivo (datasheet).</td>
+              <td>Sobrecalentamiento, reset o daño permanente.</td>
+            </tr>
+            <tr>
+              <td>Resistencia en serie</td>
+              <td>Limita corriente y ayuda a proteger entradas/salidas.</td>
+              <td>Picos de corriente excesivos y señales degradadas.</td>
+            </tr>
+            <tr>
+              <td>Pull-up / Pull-down</td>
+              <td>Evita pines flotantes y lecturas aleatorias.</td>
+              <td>Triggers falsos e inestabilidad logica.</td>
+            </tr>
+            <tr>
+              <td>Potencia de resistencias</td>
+              <td>Comprueba P disipada y margen de seguridad (x2 recomendado).</td>
+              <td>Resistencia caliente o quemada.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note warn">
+          Practica segura: cuando tengas duda de niveles o corriente, vuelve al datasheet y calcula. Nunca asumas compatibilidad de voltajes "porque funciona a veces".
+        </div>
+      </section>
+
+      <section id="sec-01" data-title="vision general core m4f dspfpu fmac cordic" data-keys="arquitectura,cortex,performance,dsp,fpu,mcu,embedded,introduccion,resumen,capacidades">
+        <h2>01) Vision general del MCU</h2>
+        <div class="chips">
+          <span class="chip">Cortex-M4F</span>
+          <span class="chip">Hasta 170 MHz</span>
+          <span class="chip">DSP + FPU</span>
+          <span class="chip">FMAC/CORDIC</span>
+          <span class="chip">ADC rapido</span>
+          <span class="chip">Timers avanzados</span>
+        </div>
+        <p>STM32G431 esta orientado a control en tiempo real y aplicaciones de signal mixed. Es muy buen candidato para instrumentacion, control de potencia, motor y medicion rapida.</p>
+
+        <div class="grid2">
+          <div class="note ok">
+            <h3>Puntos fuertes</h3>
+            <ul>
+              <li>Muy buena combinacion de perifericos analogicos y timers.</li>
+              <li>Rendimiento suficiente para DSP basico en tiempo real.</li>
+              <li>Ecosistema robusto (CubeIDE, HAL/LL, ST-LINK, comunidad).</li>
+            </ul>
+          </div>
+          <div class="note warn">
+            <h3>Riesgos tipicos</h3>
+            <ul>
+              <li>No entender clock tree y romper tiempos de muestreo.</li>
+              <li>Confiar en defaults sin revisar registros y errata.</li>
+              <li>Ignorar layout analogico y culpar al firmware por ruido.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-02" data-title="arranque startup reset handler vector table memory map linker" data-keys="boot,reset,flash,sram,startup-file,vector-table,main,init,memoria,linker">
+        <h2>02) Arranque, startup y mapa de memoria</h2>
+        <h3>Flujo de arranque</h3>
+        <div class="diagram">
+<pre>
+Reset -> Vector Table -> Reset_Handler (startup_stm32g4xx.s)
+      -> SystemInit() (clock/base)
+      -> __libc_init_array() (C runtime)
+      -> main()
+</pre>
+        </div>
+
+        <h3>Bloques de memoria (conceptual)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Bloque</th>
+              <th>Contenido</th>
+              <th>Consejo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Flash</td>
+              <td>Codigo, const, tablas, vector table</td>
+              <td>Evita escrituras frecuentes sin estrategia de wear.</td>
+            </tr>
+            <tr>
+              <td>SRAM</td>
+              <td>Variables globales, heap, stack, buffers DMA</td>
+              <td>Dimensiona stack segun ISR y printf.</td>
+            </tr>
+            <tr>
+              <td>CCM SRAM (si aplica)</td>
+              <td>Memoria rapida para rutinas/datos criticos</td>
+              <td>Ubica buffers o codigo de baja latencia si procede.</td>
+            </tr>
+            <tr>
+              <td>Backup domain</td>
+              <td>RTC y registros backup con VBAT</td>
+              <td>Guarda contadores/flags de recuperacion.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Boot y actualizacion</h3>
+        <p>Para bootloader de sistema, revisa AN de ST para interfaces soportadas por variante/pines de boot. Para producto serio, considera bootloader propio con verificacion CRC y rollback.</p>
+      </section>
+
+      <section id="sec-03" data-title="rcc sysclk hclk pclk pll m n r clock tree" data-keys="frecuencia,reloj,prescaler,vco,oscilador,hsi,hse,latencia,bus,apb">
+        <h2>03) Clock tree y PLL</h2>
+        <p>El reloj define todo: temporizacion de CPU, timers, ADC y buses.</p>
+
+        <h3>Estructura base</h3>
+        <div class="diagram">
+<pre>
+HSI/HSE ----> PLL(M,N,R,P,Q) ----> SYSCLK ----> AHB(HCLK) ----> APB1/APB2(PCLK)
+                                               \-> Perifericos (TIM, ADC, SPI...)
+</pre>
+        </div>
+
+        <h3>Formulas de PLL (conceptuales)</h3>
+        <div class="formula">
+          fVCO_in  = fPLL_source / M
+          <br />fVCO_out = fVCO_in * N
+          <br />fPLL_R   = fVCO_out / R
+        </div>
+
+        <div class="note warn">
+          Los rangos validos de M/N/R y VCO dependen de RM0440 y la revision concreta. Usa siempre la herramienta de Clock Configuration de CubeMX y valida con RM.
+        </div>
+
+        <h3>Relacion APB y timers</h3>
+        <p>Segun prescaler APB, el reloj efectivo de timers puede no ser igual al PCLK. Este punto causa muchos errores de frecuencia. Compruebalo siempre en Cube y RM.</p>
+      </section>
+
+      <section id="sec-04" data-title="gpio exti pullup pulldown alternate function af" data-keys="pines,entrada,salida,debounce,interrupcion-externa,pinout,open-drain,push-pull,af,mapeo">
+        <h2>04) GPIO y EXTI</h2>
+        <h3>Modos de GPIO</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Modo</th>
+              <th>Uso tipico</th>
+              <th>Error frecuente</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Input</td>
+              <td>Lectura de sensores/binarios</td>
+              <td>No configurar pull y dejar pin flotando.</td>
+            </tr>
+            <tr>
+              <td>Output PP</td>
+              <td>Control directo de linea digital</td>
+              <td>Conducir carga excesiva sin driver.</td>
+            </tr>
+            <tr>
+              <td>Output OD</td>
+              <td>Buses compartidos (I2C) o lineas abiertas</td>
+              <td>Olvidar pull-up.</td>
+            </tr>
+            <tr>
+              <td>AF</td>
+              <td>SPI/I2C/UART/TIM</td>
+              <td>Escoger AF incorrecta para ese pin.</td>
+            </tr>
+            <tr>
+              <td>Analog</td>
+              <td>ADC, reducir consumo en pin no usado</td>
+              <td>Dejar un pin de comunicacion en analog.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>EXTI robusto</h3>
+        <ul>
+          <li>Configura flanco correcto (rising/falling/both).</li>
+          <li>Haz debounce (software/hardware).</li>
+          <li>En ISR: solo bandera y salida rapida.</li>
+        </ul>
+      </section>
+
+      <section id="sec-05" data-title="nvic prioridades interrupciones isr latency jitter" data-keys="preempcion,callback,eventos,concurrencia,tiempo-real,handler,flags,prioridad,irq,scheduler">
+        <h2>05) NVIC e interrupciones</h2>
+        <p>Prioridades bien elegidas = sistema estable. ISR largas = jitter y perdida de eventos.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Prioridad sugerida</th>
+              <th>Tipo</th>
+              <th>Motivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alta</td>
+              <td>ADC DMA complete, safety critical</td>
+              <td>No perder datos ni eventos criticos.</td>
+            </tr>
+            <tr>
+              <td>Media</td>
+              <td>Timer control, captura auxiliar</td>
+              <td>Control temporal estable.</td>
+            </tr>
+            <tr>
+              <td>Baja</td>
+              <td>UI, UART logs, tareas no criticas</td>
+              <td>Evitar bloquear cadena de adquisicion.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code>// Patron recomendado de ISR
+volatile uint8_t g_evt_adc_done = 0;
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1) {
+        g_evt_adc_done = 1; // solo evento
+    }
+}
+</code></pre>
+      </section>
+
+      <section id="sec-06" data-title="timer tim6 tim7 tim1 tim2 tim3 tim4 psc arr cnt cr1 dier sr ccr" data-keys="temporizador,contador,frecuencia,periodo,registro,update-event,timxclk,pwm-base,trigger,trgo">
+        <h2>06) Timers: tipos, bits, registros y reloj</h2>
+
+        <h3>Tipos de timer (serie G4, depende de variante/paquete)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Ejemplos</th>
+              <th>Bits</th>
+              <th>Uso</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Basicos</td>
+              <td>TIM6, TIM7</td>
+              <td>16-bit</td>
+              <td>Base temporal y trigger de ADC.</td>
+            </tr>
+            <tr>
+              <td>Generales</td>
+              <td>TIM2, TIM3, TIM4...</td>
+              <td>TIM2 suele 32-bit; otros 16-bit</td>
+              <td>PWM, input capture, encoder.</td>
+            </tr>
+            <tr>
+              <td>Avanzados</td>
+              <td>TIM1/TIM8 segun variante</td>
+              <td>16-bit</td>
+              <td>Complementary PWM, dead-time, break.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Esquema de registros clave de timer</h3>
+        <div class="diagram">
+<pre>
+TIMxCLK -> [PSC] -> [CNT] <-> [CCR1..CCR4]
+                     |
+                     +--> compara contra ARR -> update event(UIF)
+
+Registros clave:
+- CR1   : CEN, DIR, ARPE...
+- PSC   : prescaler
+- ARR   : auto reload
+- CNT   : contador actual
+- DIER  : habilita IRQ/DMA
+- SR    : flags (UIF, CCxIF...)
+- EGR   : genera update por software (UG)
+- CCMR* : modos output/input compare
+- CCER  : habilita/cfg canales
+- BDTR  : dead-time/break (timers avanzados)
+</pre>
+        </div>
+
+        <h3>Frecuencia de update</h3>
+        <div class="formula">
+          f_cnt    = f_TIMxCLK / (PSC + 1)
+          <br />f_update = f_cnt / (ARR + 1)
+          <br />T_update = 1 / f_update
+        </div>
+
+        <pre><code>// Ejemplo: 170 MHz -> 5 kHz
+// PSC=169 => f_cnt=1 MHz
+// ARR=199 => f_update=1 MHz/200=5 kHz
+</code></pre>
+      </section>
+
+      <section id="sec-07" data-title="pwm input capture output compare one pulse encoder deadtime break" data-keys="duty-cycle,ic,oc,encoder-mode,cuadratura,pulse-width,medicion-frecuencia,motor-control,deadtime,break-input">
+        <h2>07) PWM, Input Capture y Encoder mode</h2>
+
+        <h3>PWM</h3>
+        <p>Ideal para control de potencia y actuadores. La resolucion depende de ARR: a mayor ARR, mejor granularidad, pero limitada por frecuencia objetivo.</p>
+        <div class="formula">
+          duty(%) = (CCR / (ARR + 1)) * 100
+        </div>
+
+        <h3>Input Capture</h3>
+        <p>Mide periodo/frecuencia capturando CNT en flancos de entrada.</p>
+        <div class="formula">
+          periodo_ticks = capture_n - capture_{n-1}
+          <br />f_signal = f_cnt / periodo_ticks
+        </div>
+
+        <h3>Encoder mode</h3>
+        <p>Usa dos canales en cuadratura para posicion y velocidad en encoders incrementales.</p>
+
+        <div class="note ok">
+          Para control de motor o potencia, revisa timers avanzados con dead-time y break. Son diferenciales respecto a MCUs mas simples.
+        </div>
+      </section>
+
+      <section id="sec-08" data-title="adc dma dmamux sampling time oversampling calibration analog watchdog" data-keys="conversion,muestreo,trigger-externo,ruido,offset,ganancia,vref,canales,buffer,adquisicion">
+        <h2>08) ADC, analogico y DMA</h2>
+
+        <h3>Arquitectura recomendada de adquisicion</h3>
+        <div class="diagram">
+<pre>
+Timer TRGO -> ADC conversion -> DMA -> Buffer RAM -> Procesado en loop/tarea
+</pre>
+        </div>
+
+        <h3>Puntos tecnicos criticos</h3>
+        <ul>
+          <li><strong>Sampling time</strong>: depende de impedancia de fuente; muy corto puede distorsionar.</li>
+          <li><strong>Calibracion ADC</strong>: ejecutala al iniciar para reducir error.</li>
+          <li><strong>Oversampling</strong>: mejora ENOB efectiva a costa de tasa de salida.</li>
+          <li><strong>Analog watchdog</strong>: detecta umbrales sin CPU pesada.</li>
+        </ul>
+
+        <h3>Cadena de conversion</h3>
+        <div class="formula">
+          V = (counts / FS_counts) * Vref
+          <br />F = gain * (V - offset)
+        </div>
+
+        <div class="note warn">
+          Si la aplicacion requiere precision metrologica elevada, un ADC externo dedicado + referencia estable suele superar al ADC interno en ruido y linealidad global del sistema.
+        </div>
+      </section>
+
+      <section id="sec-09" data-title="dac comparator opamp pga vrefbuf analog front end" data-keys="analogico,umbral,senal,amplificador,front-end,pga,referencia-interna,salida-analogica,comp,opamp">
+        <h2>09) DAC, comparadores, OPAMP y VREFBUF</h2>
+        <p>La serie G4 integra bloques analogicos muy utiles para prototipos y control rapido.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Bloque</th>
+              <th>Uso</th>
+              <th>Ventaja</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>DAC</td>
+              <td>Generar referencia/senal de prueba</td>
+              <td>Validacion rapida sin equipo externo en ciertos escenarios.</td>
+            </tr>
+            <tr>
+              <td>Comparadores</td>
+              <td>Deteccion de umbral hardware</td>
+              <td>Respuesta rapida y baja carga de CPU.</td>
+            </tr>
+            <tr>
+              <td>OPAMP</td>
+              <td>Buffer o PGA interno</td>
+              <td>Ahorra componentes externos para prototipos.</td>
+            </tr>
+            <tr>
+              <td>VREFBUF</td>
+              <td>Referencia interna configurable</td>
+              <td>Mejora consistencia de conversion si se usa bien.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note danger">
+          Para diseno final de precision: valida offset/ruido/deriva termica de cada bloque analogico con pruebas reales y caracterizacion de temperatura.
+        </div>
+      </section>
+
+      <section id="sec-10" data-title="uart usart spi i2c can fdcan sai usb ucpd bus" data-keys="comunicaciones,serial,protocolo,baudrate,cpol,cpha,bus-datos,perifericos,frames,dma-rx">
+        <h2>10) Comunicaciones: USART, SPI, I2C y mas</h2>
+
+        <div class="grid2">
+          <div class="note">
+            <h3>USART/UART</h3>
+            <ul>
+              <li>Debug principal del firmware.</li>
+              <li>Con DMA RX circular puedes crear consola robusta.</li>
+              <li>Valida error de baud con clock real.</li>
+            </ul>
+          </div>
+          <div class="note">
+            <h3>SPI</h3>
+            <ul>
+              <li>Ideal para ADC externo y pantallas.</li>
+              <li>Revisa CPOL/CPHA y timing CS.</li>
+              <li>DMA recomendado para transferencias largas.</li>
+            </ul>
+          </div>
+          <div class="note">
+            <h3>I2C</h3>
+            <ul>
+              <li>Sensores lentos/medios y perifericos de control.</li>
+              <li>Pull-up correcto es obligatorio.</li>
+              <li>Implementa recuperacion de bus colgado.</li>
+            </ul>
+          </div>
+          <div class="note">
+            <h3>Otros (segun variante)</h3>
+            <ul>
+              <li>FDCAN para redes robustas.</li>
+              <li>USB FS para conectividad con PC.</li>
+              <li>LPUART para bajo consumo.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-11" data-title="rtc vbat stop standby sleep shutdown backup registers" data-keys="bajo-consumo,energia,wakeup,autonomia,dominio-backup,reloj-tiempo-real,alarma,power-modes,consumo,retencion">
+        <h2>11) RTC, backup y modos de bajo consumo</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Modo</th>
+              <th>Consumo relativo</th>
+              <th>Latencia wakeup</th>
+              <th>Uso tipico</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sleep</td>
+              <td>Bajo</td>
+              <td>Muy baja</td>
+              <td>Espera corta conservando estado completo.</td>
+            </tr>
+            <tr>
+              <td>Stop</td>
+              <td>Muy bajo</td>
+              <td>Media</td>
+              <td>Duty-cycle con RTC/EXTI.</td>
+            </tr>
+            <tr>
+              <td>Standby/Shutdown</td>
+              <td>Minimo</td>
+              <td>Mayor (reinicio parcial/total)</td>
+              <td>Autonomia maxima.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>Usa VBAT para preservar RTC y backup registers. Muy util para contador de eventos, marca temporal y recuperacion tras corte.</p>
+      </section>
+
+      <section id="sec-12" data-title="iwdg wwdg watchdog reset resiliencia fault recovery" data-keys="seguridad,recuperacion,timeout,supervision,robustez,reinicio,fallos,ventana,alimentar-watchdog,fail-safe">
+        <h2>12) Watchdogs y resiliencia del firmware</h2>
+        <h3>Tipos</h3>
+        <ul>
+          <li><strong>IWDG</strong>: independiente, robusto frente a fallo de clock principal.</li>
+          <li><strong>WWDG</strong>: ventana temporal; detecta tanto retraso como refresco demasiado temprano.</li>
+        </ul>
+
+        <h3>Patron recomendado</h3>
+        <ul>
+          <li>Alimentar watchdog solo cuando el ciclo critico complete correctamente.</li>
+          <li>No hacer refresh en ISR indiscriminadamente.</li>
+          <li>Guardar causa de reset y estado previo en backup para diagnostico.</li>
+        </ul>
+      </section>
+
+      <section id="sec-13" data-title="registros metodo rcc cr1 sr dier egr cfg bits masks" data-keys="bitfields,masks,lectura-escritura,orden-configuracion,flags,registro-directo,periferico,cfg,low-level,debug-registros">
+        <h2>13) Registros: metodo practico para no perderte</h2>
+        <h3>Secuencia mental universal</h3>
+        <ol>
+          <li>Habilita clock del periferico en RCC.</li>
+          <li>Configura modo/parametros en registros de configuracion.</li>
+          <li>Genera update/evento inicial si aplica.</li>
+          <li>Limpia flags pendientes.</li>
+          <li>Habilita interrupcion/DMA.</li>
+          <li>Arranca periferico.</li>
+        </ol>
+
+        <pre><code>// Ejemplo minimo conceptual timer
+RCC->APB1ENR1 |= RCC_APB1ENR1_TIM6EN;
+TIM6->PSC = 169;
+TIM6->ARR = 199;
+TIM6->EGR = TIM_EGR_UG;
+TIM6->SR = 0;                 // limpia flags
+TIM6->DIER |= TIM_DIER_UIE;
+TIM6->CR1 |= TIM_CR1_CEN;
+</code></pre>
+
+        <div class="note warn">
+          Evita escribir registros sin revisar descripcion de bit, side effects y orden de actualizacion en RM0440.
+        </div>
+      </section>
+
+      <section id="sec-14" data-title="hal ll registros directos comparativa rendimiento mantenimiento" data-keys="abstraccion,performance,portabilidad,boilerplate,drivers,low-level-api,productividad,control-fino,mantenimiento,tradeoff">
+        <h2>14) HAL vs LL vs registros directos</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Enfoque</th>
+              <th>Pros</th>
+              <th>Contras</th>
+              <th>Cuando usar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>HAL</td>
+              <td>Rapido de desarrollar, portable, legible para equipo</td>
+              <td>Overhead, menos control fino</td>
+              <td>MVP y firmware general</td>
+            </tr>
+            <tr>
+              <td>LL</td>
+              <td>Mas cercano a HW, mejor rendimiento</td>
+              <td>Mas detalle y complejidad</td>
+              <td>Perifericos criticos</td>
+            </tr>
+            <tr>
+              <td>Registros</td>
+              <td>Control total y latencia minima</td>
+              <td>Mantenimiento dificil y mayor riesgo de error</td>
+              <td>Secciones de timing extremo o drivers propios</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-15" data-title="hardfault busfault usagefault debug stlink trace" data-keys="depuracion,fallos,stacktrace,breakpoint,watchpoint,st-link,osciloscopio,jitter,diagnostico,assert">
+        <h2>15) Faults y debug profesional</h2>
+
+        <h3>Fault handlers importantes</h3>
+        <ul>
+          <li>HardFault</li>
+          <li>MemManage (si habilitado)</li>
+          <li>BusFault (si habilitado)</li>
+          <li>UsageFault (si habilitado)</li>
+        </ul>
+
+        <h3>Prueba de timing real</h3>
+        <pre><code>// Toggle de pin en callback para medir jitter en osciloscopio
+HAL_GPIO_TogglePin(DEBUG_GPIO_Port, DEBUG_Pin);
+</code></pre>
+
+        <div class="note ok">
+          Si el periodo en osciloscopio no es estable, el problema es real aunque por UART parezca "correcto".
+        </div>
+      </section>
+
+      <section id="sec-16" data-title="seguridad rdp wrp pcrop secure area firmware protection" data-keys="proteccion-codigo,lectura,escritura,ip,firmware,seguro,acceso,bloqueo,flash-protection,hardening">
+        <h2>16) Seguridad basica y proteccion de firmware</h2>
+        <ul>
+          <li><strong>RDP</strong>: readout protection para frenar extraccion de firmware.</li>
+          <li><strong>WRP</strong>: write protection por paginas de Flash.</li>
+          <li><strong>PCROP</strong>: protege lectura de codigo propietario.</li>
+        </ul>
+
+        <div class="note warn">
+          Define la politica de seguridad temprano. Cambiar niveles de proteccion en fases tardias puede complicar depuracion y produccion.
+        </div>
+      </section>
+
+      <section id="sec-17" data-title="hardware pcb desacoplo layout analogico digital emi esd swd" data-keys="placa,diseno,masa,desacoplo,ruidosemi,integridad-senal,testpoints,conectores,alimentacion,ground-plane">
+        <h2>17) Hardware y PCB para STM32</h2>
+        <h3>Reglas cortas de diseno</h3>
+        <ul>
+          <li>Desacoplo cercano a cada pin VDD/VDDA.</li>
+          <li>Plano de masa coherente y rutas de retorno claras.</li>
+          <li>Separar zonas analogicas de digitales ruidosas.</li>
+          <li>Mantener SWD accesible (header o pads).</li>
+          <li>Protecciones ESD en conectores externos.</li>
+        </ul>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Problema</th>
+              <th>Sintoma</th>
+              <th>Mitigacion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ruido en ADC</td>
+              <td>Lecturas inestables</td>
+              <td>Mejor GND, filtro RC, referencia limpia, layout.</td>
+            </tr>
+            <tr>
+              <td>SPI inestable</td>
+              <td>Frames corruptos</td>
+              <td>Reducir slew/ruta, ajustar speed y terminacion segun trazas.</td>
+            </tr>
+            <tr>
+              <td>Reset aleatorio</td>
+              <td>Reinicio bajo carga</td>
+              <td>Revisar BOR/PDR, desacoplo y transitorios de alimentacion.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-18" data-title="formulas calculadora timer pll muestras frecuencia periodo" data-keys="ecuaciones,calculo,muestreo,dt,nsamples,psc,arr,pll,velocidad,herramienta">
+        <h2>18) Formulas y calculadoras offline</h2>
+
+        <h3>Formula rapida de muestreo</h3>
+        <div class="formula">
+          N = fs * ventana_s
+          <br />dt = 1 / fs
+          <br />J ~= Sum(F[i] * dt)
+          <br />V = I * R
+          <br />P = V * I
+          <br />Vout = Vin * (R2 / (R1 + R2))
+        </div>
+
+        <div class="calc">
+          <h3>Calculadora Ley de Ohm + Potencia</h3>
+          <div class="row">
+            <div>
+              <label for="ohmV">V (voltios)</label>
+              <input id="ohmV" type="number" value="3.3" step="any" />
+            </div>
+            <div>
+              <label for="ohmI">I (amperios)</label>
+              <input id="ohmI" type="number" value="0.01" step="any" />
+            </div>
+            <div>
+              <label for="ohmR">R (ohmios)</label>
+              <input id="ohmR" type="number" value="330" step="any" />
+            </div>
+            <div>
+              <label for="ohmMode">Calcular</label>
+              <select id="ohmMode">
+                <option value="r">R desde V e I</option>
+                <option value="i">I desde V y R</option>
+                <option value="v">V desde I y R</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" id="btnOhmCalc">Calcular</button>
+          <div class="result" id="ohmResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>Calculadora divisor resistivo + disipacion</h3>
+          <div class="row">
+            <div>
+              <label for="divVin">Vin (V)</label>
+              <input id="divVin" type="number" value="5" step="any" />
+            </div>
+            <div>
+              <label for="divR1">R1 (ohmios)</label>
+              <input id="divR1" type="number" value="10000" step="any" />
+            </div>
+            <div>
+              <label for="divR2">R2 (ohmios)</label>
+              <input id="divR2" type="number" value="20000" step="any" />
+            </div>
+            <div>
+              <label for="divPmax">P resistencia (W)</label>
+              <input id="divPmax" type="number" value="0.125" step="any" />
+            </div>
+          </div>
+          <button class="btn" id="btnDividerCalc">Calcular</button>
+          <div class="result" id="dividerResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>Calculadora Timer (PSC/ARR)</h3>
+          <div class="row">
+            <div>
+              <label for="timClk">f_TIMxCLK (Hz)</label>
+              <input id="timClk" type="number" value="170000000" />
+            </div>
+            <div>
+              <label for="timPsc">PSC</label>
+              <input id="timPsc" type="number" value="169" />
+            </div>
+            <div>
+              <label for="timArr">ARR</label>
+              <input id="timArr" type="number" value="199" />
+            </div>
+            <div>
+              <label for="timMode">Modo</label>
+              <select id="timMode">
+                <option value="up">Upcount</option>
+                <option value="center">Center aligned aprox</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" id="btnTimerCalc">Calcular</button>
+          <div class="result" id="timerResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>Calculadora PLL (orientativa)</h3>
+          <div class="row">
+            <div>
+              <label for="pllSrc">f_source (Hz)</label>
+              <input id="pllSrc" type="number" value="16000000" />
+            </div>
+            <div>
+              <label for="pllM">M</label>
+              <input id="pllM" type="number" value="4" />
+            </div>
+            <div>
+              <label for="pllN">N</label>
+              <input id="pllN" type="number" value="85" />
+            </div>
+            <div>
+              <label for="pllR">R</label>
+              <input id="pllR" type="number" value="2" />
+            </div>
+          </div>
+          <button class="btn" id="btnPllCalc">Calcular</button>
+          <div class="result" id="pllResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>Calculadora de ventana de adquisicion</h3>
+          <div class="row">
+            <div>
+              <label for="fsHz">fs (SPS)</label>
+              <input id="fsHz" type="number" value="5000" />
+            </div>
+            <div>
+              <label for="winMs">Ventana (ms)</label>
+              <input id="winMs" type="number" value="80" />
+            </div>
+            <div>
+              <label for="peakMs">Tiempo estimado a pico (ms)</label>
+              <input id="peakMs" type="number" value="12" />
+            </div>
+            <div>
+              <label for="bufCount">Buffers</label>
+              <input id="bufCount" type="number" value="1" />
+            </div>
+          </div>
+          <button class="btn" id="btnWinCalc">Calcular</button>
+          <div class="result" id="winResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+      </section>
+
+      <section id="sec-19" data-title="recetas ejemplos c firmware uart timer adc dma watchdog rtc" data-keys="snippets,plantillas,casos-practicos,codigo-c,patrones,mvp,quickstart,drivers,integracion,ejercicios">
+        <h2>19) Recetas rapidas de firmware</h2>
+
+        <div class="grid3">
+          <div class="note">
+            <h3>R1: Blink no bloqueante</h3>
+            <p>Usa tick por timer, evita <code>HAL_Delay</code> en logica principal.</p>
+          </div>
+          <div class="note">
+            <h3>R2: UART debug estable</h3>
+            <p>TX por DMA o anillo; evita printf en ISR.</p>
+          </div>
+          <div class="note">
+            <h3>R3: Timer 5 kHz</h3>
+            <p>Base para trigger ADC y procesos periodicos.</p>
+          </div>
+          <div class="note">
+            <h3>R4: ADC + DMA</h3>
+            <p>Captura N muestras con trigger por timer.</p>
+          </div>
+          <div class="note">
+            <h3>R5: Input capture</h3>
+            <p>Mide frecuencia de sensor digital rapido.</p>
+          </div>
+          <div class="note">
+            <h3>R6: PWM variable</h3>
+            <p>Control de actuador con duty configurable.</p>
+          </div>
+          <div class="note">
+            <h3>R7: I2C sensor</h3>
+            <p>Lectura periodica con validacion de timeout.</p>
+          </div>
+          <div class="note">
+            <h3>R8: SPI display</h3>
+            <p>Dibujo por bloques para no bloquear tiempo critico.</p>
+          </div>
+          <div class="note">
+            <h3>R9: Watchdog seguro</h3>
+            <p>Refresh solo tras ciclo valido completo.</p>
+          </div>
+        </div>
+
+        <pre><code>// Esqueleto base: maquina de estados
+switch (state) {
+  case ST_INIT:    init_all(); state = ST_READY; break;
+  case ST_READY:   if (trigger()) state = ST_CAPTURE; break;
+  case ST_CAPTURE: start_capture_dma(); state = ST_WAIT; break;
+  case ST_WAIT:    if (capture_done) state = ST_PROCESS; break;
+  case ST_PROCESS: process(); state = ST_DISPLAY; break;
+  case ST_DISPLAY: draw(); if (reset_req) state = ST_READY; break;
+  default:         state = ST_ERROR; break;
+}
+</code></pre>
+      </section>
+
+      <section id="sec-20" data-title="checklist niveles basico intermedio avanzado experto" data-keys="autoevaluacion,progreso,competencias,niveles,objetivos,aprendizaje,seguimiento,skills,tracking,formacion">
+        <h2>20) Checklist por nivel (se guarda offline)</h2>
+        <p>Marca lo que ya dominas. El estado se guarda en este navegador con <code>localStorage</code>.</p>
+
+        <h3>Basico</h3>
+        <div class="checklist" data-list="basic">
+          <label><input type="checkbox" data-item="b1" /> Entiendo clock tree basico (SYSCLK/HCLK/PCLK).</label>
+          <label><input type="checkbox" data-item="b2" /> Configuro GPIO y EXTI sin conflictos.</label>
+          <label><input type="checkbox" data-item="b3" /> Configuro timer con PSC/ARR correctamente.</label>
+          <label><input type="checkbox" data-item="b4" /> Uso UART para debug estructurado.</label>
+        </div>
+
+        <h3>Intermedio</h3>
+        <div class="checklist" data-list="mid">
+          <label><input type="checkbox" data-item="m1" /> Capturo ADC con trigger por timer y DMA.</label>
+          <label><input type="checkbox" data-item="m2" /> Priorizo NVIC sin bloquear adquisicion.</label>
+          <label><input type="checkbox" data-item="m3" /> Implemento watchdog con criterio seguro.</label>
+          <label><input type="checkbox" data-item="m4" /> Mido timing real con osciloscopio.</label>
+        </div>
+
+        <h3>Avanzado</h3>
+        <div class="checklist" data-list="adv">
+          <label><input type="checkbox" data-item="a1" /> Manejo timers avanzados (dead-time/break).</label>
+          <label><input type="checkbox" data-item="a2" /> Diseno bajo consumo con RTC/wakeup.</label>
+          <label><input type="checkbox" data-item="a3" /> Integro estrategia de fault logging.</label>
+          <label><input type="checkbox" data-item="a4" /> Aplico proteccion RDP/WRP/PCROP.</label>
+        </div>
+
+        <button class="btn" id="btnChecklistReset">Reset checklist</button>
+      </section>
+
+      <section id="sec-21" data-title="roadmap estudio aprendizaje proyecto futuro" data-keys="plan,hoja-de-ruta,etapas,metas,cronograma,evolucion,practica,planificacion,career,mastery">
+        <h2>21) Roadmap de aprendizaje (manual vivo)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Fase</th>
+              <th>Duracion orientativa</th>
+              <th>Objetivo tecnico</th>
+              <th>Entregable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>F1: Base MCU</td>
+              <td>1 semana</td>
+              <td>Clock, GPIO, UART, EXTI</td>
+              <td>Proyecto base con logs y boton robusto</td>
+            </tr>
+            <tr>
+              <td>F2: Tiempo real</td>
+              <td>1-2 semanas</td>
+              <td>Timers, PWM, capture</td>
+              <td>Banco de pruebas de frecuencias y duty</td>
+            </tr>
+            <tr>
+              <td>F3: Senal</td>
+              <td>1-2 semanas</td>
+              <td>ADC + DMA + filtros</td>
+              <td>Curva de medicion reproducible</td>
+            </tr>
+            <tr>
+              <td>F4: Robustez</td>
+              <td>1 semana</td>
+              <td>Watchdog, faults, low power, proteccion</td>
+              <td>Firmware estable para campo</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note ok">
+          Este manual esta pensado para crecer: puedes agregar nuevos apartados por proyecto (control motor, BMS, audio, datalogger, comunicaciones industriales) reutilizando la misma base.
+        </div>
+      </section>
+
+      <section id="sec-22" data-title="dma dmamux circular normal double buffer transfer" data-keys="double-buffer,half-complete,full-complete,streaming,throughput,latencia,buffer-circular,transferencia,memoria,eventos">
+        <h2>22) DMA y DMAMUX avanzado</h2>
+        <p>DMA evita que CPU copie datos manualmente. DMAMUX enruta solicitudes de perifericos a canales DMA y da flexibilidad de conexion.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Modo</th>
+              <th>Uso</th>
+              <th>Ventaja</th>
+              <th>Riesgo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Normal</td>
+              <td>Captura puntual de N muestras</td>
+              <td>Simple de razonar</td>
+              <td>Se detiene al finalizar</td>
+            </tr>
+            <tr>
+              <td>Circular</td>
+              <td>Stream continuo</td>
+              <td>No requiere rearme</td>
+              <td>Riesgo de overwrite si no procesas a tiempo</td>
+            </tr>
+            <tr>
+              <td>Half/Full callback</td>
+              <td>Procesado por bloques</td>
+              <td>Menor latencia de procesado</td>
+              <td>Complejidad de sincronizacion</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code>// Esquema de procesamiento por medio buffer
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc) {
+  evt_half = 1;
+}
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+  evt_full = 1;
+}
+// loop principal: procesa primera mitad y segunda mitad separadas
+</code></pre>
+      </section>
+
+      <section id="sec-23" data-title="linker script memory sections text data bss stack heap" data-keys="ld-script,map-file,heap,stack,secciones,ubicacion,flash-layout,ram-layout,toolchain,compilacion">
+        <h2>23) Linker script y organizacion de firmware</h2>
+        <p>El linker script define donde vive cada seccion. Entender esto evita fallos extranos por stack/heap y permite ubicar buffers criticos.</p>
+
+        <h3>Secciones comunes</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Seccion</th>
+              <th>Contenido</th>
+              <th>Carga</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>.text</td>
+              <td>Codigo ejecutable</td>
+              <td>Flash</td>
+            </tr>
+            <tr>
+              <td>.rodata</td>
+              <td>Constantes</td>
+              <td>Flash</td>
+            </tr>
+            <tr>
+              <td>.data</td>
+              <td>Globales inicializadas</td>
+              <td>Flash -> SRAM en arranque</td>
+            </tr>
+            <tr>
+              <td>.bss</td>
+              <td>Globales a cero</td>
+              <td>SRAM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note warn">
+          Si usas DMA, evita ubicar buffers en memorias no accesibles por DMA segun arquitectura. Revisa mapeo de buses y restricciones en RM.
+        </div>
+      </section>
+
+      <section id="sec-24" data-title="bootloader update firmware crc rollback uart usb" data-keys="ota,actualizacion,rollback,imagen,firmware-update,checksum,integridad,versionado,dual-bank,recovery">
+        <h2>24) Bootloader y actualizacion de firmware</h2>
+        <h3>Opciones</h3>
+        <ul>
+          <li>Bootloader de sistema ST (segun interfaz y pines disponibles).</li>
+          <li>Bootloader propio en Flash para control total de protocolo y seguridad.</li>
+        </ul>
+
+        <h3>Patron robusto de actualizacion</h3>
+        <ol>
+          <li>Descargar imagen en zona temporal.</li>
+          <li>Verificar integridad (CRC/hash y version).</li>
+          <li>Marcar estado "pending" en backup register.</li>
+          <li>Conmutar a nueva imagen.</li>
+          <li>Si falla self-test, rollback automatico.</li>
+        </ol>
+
+        <div class="note danger">
+          Nunca sobrescribas la unica imagen valida sin mecanismo de recuperacion. Es la causa principal de equipos "brick" en campo.
+        </div>
+      </section>
+
+      <section id="sec-25" data-title="crc rng unique id uid perifericos servicio" data-keys="hash,aleatoriedad,identificador-unico,serial,validacion,entropy,checksum,perifericos-utiles,metadatos,device-id">
+        <h2>25) CRC, RNG y UID</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Periferico</th>
+              <th>Uso recomendado</th>
+              <th>Ejemplo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CRC</td>
+              <td>Verificar integridad de bloques</td>
+              <td>Validar firmware descargado o paquetes de datos</td>
+            </tr>
+            <tr>
+              <td>RNG (si presente en variante)</td>
+              <td>Semillas, identificadores no predecibles</td>
+              <td>Nonce para protocolo local</td>
+            </tr>
+            <tr>
+              <td>UID 96-bit</td>
+              <td>Identidad unica de equipo</td>
+              <td>Serial de fabrica o licencia por dispositivo</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-26" data-title="cubeide stlink openocd debug workflow tests" data-keys="workflow,integracion,ci,tests,tooling,flasheo,depuracion-paso-a-paso,build,logs,bench">
+        <h2>26) Flujo de herramientas y depuracion</h2>
+        <h3>Pipeline recomendado</h3>
+        <ol>
+          <li>CubeMX/CubeIDE para pinout y clock base.</li>
+          <li>Compilacion con warnings altos y sin warnings nuevos.</li>
+          <li>Flash con ST-LINK y validacion de startup.</li>
+          <li>Pruebas de tiempo con osciloscopio/analizador logico.</li>
+          <li>Test de estres (horas) con watchdog habilitado.</li>
+        </ol>
+
+        <div class="note ok">
+          Mejora de productividad: usa un "test bench" minimo por periferico (timer, ADC, UART, SPI) antes de integrar todo en una sola app.
+        </div>
+
+        <h3>Atajos utiles de depuracion</h3>
+        <p><span class="kbd">F5</span> continuar, <span class="kbd">F10</span> step over, <span class="kbd">F11</span> step into, watch expressions para registros clave (RCC, TIMx, ADCx, DMA).</p>
+      </section>
+
+      <p class="footer">Manual vivo offline STM32G431CBU6. Ultima edicion local. Validar siempre detalles de registros y limites en documentacion oficial ST (datasheet + RM0440 + errata vigente).</p>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const nav = document.getElementById('sideNav');
+      const links = Array.from(nav.querySelectorAll('a[href^="#"]'));
+      const sections = links
+        .map(a => document.querySelector(a.getAttribute('href')))
+        .filter(Boolean);
+
+      const SPY_OFFSET_PX = 105;
+      const MAX_SCROLL_SPEED_PX_PER_S = 1350;
+      const MIN_SCROLL_DURATION_MS = 260;
+      const MAX_SCROLL_DURATION_MS = 1400;
+      let lockActiveId = null;
+      let lockTimer = null;
+      let ticking = false;
+
+      function smoothScrollToY(targetY) {
+        const startY = window.scrollY;
+        const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        const finalY = Math.max(0, Math.min(targetY, maxY));
+        const distance = finalY - startY;
+
+        if (Math.abs(distance) < 2) {
+          window.scrollTo(0, finalY);
+          return Promise.resolve();
+        }
+
+        const durationBySpeed = (Math.abs(distance) / MAX_SCROLL_SPEED_PX_PER_S) * 1000;
+        const duration = Math.min(MAX_SCROLL_DURATION_MS, Math.max(MIN_SCROLL_DURATION_MS, durationBySpeed));
+
+        return new Promise((resolve) => {
+          const t0 = performance.now();
+
+          function easeInOutCubic(t) {
+            return t < 0.5
+              ? 4 * t * t * t
+              : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          }
+
+          function frame(now) {
+            const elapsed = now - t0;
+            const p = Math.min(1, elapsed / duration);
+            const e = easeInOutCubic(p);
+            window.scrollTo(0, startY + distance * e);
+
+            if (p < 1) {
+              requestAnimationFrame(frame);
+            } else {
+              resolve();
+            }
+          }
+
+          requestAnimationFrame(frame);
+        });
+      }
+
+      function setActiveById(id) {
+        links.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+
+      function getActiveSectionByScroll() {
+        if (!sections.length) return null;
+
+        if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 2)) {
+          return sections[sections.length - 1];
+        }
+
+        const viewportH = window.innerHeight;
+        let best = null;
+        let bestDist = Number.POSITIVE_INFINITY;
+
+        for (let i = 0; i < sections.length; i++) {
+          const rect = sections[i].getBoundingClientRect();
+          const isVisible = rect.bottom > 0 && rect.top < viewportH;
+          if (!isVisible) continue;
+          const dist = Math.abs(rect.top - SPY_OFFSET_PX);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = sections[i];
+          }
+        }
+
+        if (best) return best;
+
+        const y = window.scrollY + SPY_OFFSET_PX;
+        let current = sections[0];
+        for (let i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= y) current = sections[i];
+          else break;
+        }
+        return current;
+      }
+
+      function updateActiveFromScroll() {
+        if (lockActiveId) {
+          setActiveById(lockActiveId);
+          return;
+        }
+        const sec = getActiveSectionByScroll();
+        if (sec) setActiveById(sec.id);
+      }
+
+      links.forEach(link => {
+        link.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          const href = link.getAttribute('href');
+          const target = document.querySelector(href);
+          if (!target) return;
+
+          const id = href.slice(1);
+          lockActiveId = id;
+          if (lockTimer) clearTimeout(lockTimer);
+          lockTimer = setTimeout(() => {
+            lockActiveId = null;
+            updateActiveFromScroll();
+          }, 1600);
+
+          setActiveById(id);
+          const targetY = window.scrollY + target.getBoundingClientRect().top - 8;
+          smoothScrollToY(targetY).then(() => {
+            lockActiveId = null;
+            updateActiveFromScroll();
+          });
+        });
+      });
+
+      window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          updateActiveFromScroll();
+          ticking = false;
+        });
+      }, { passive: true });
+
+      // Filtro de apartados en sidebar
+      const navFilter = document.getElementById('navFilter');
+      navFilter.addEventListener('input', () => {
+        const q = navFilter.value.trim().toLowerCase();
+        links.forEach(link => {
+          const sec = document.querySelector(link.getAttribute('href'));
+          const text = (link.textContent + ' ' + (sec ? ((sec.dataset.title || '') + ' ' + (sec.dataset.keys || '')) : '')).toLowerCase();
+          const show = !q || text.includes(q);
+          link.classList.toggle('hidden-by-filter', !show);
+        });
+      });
+
+      // Calculadora timer
+      function calcTimer() {
+        const fclk = Number(document.getElementById('timClk').value);
+        const psc = Number(document.getElementById('timPsc').value);
+        const arr = Number(document.getElementById('timArr').value);
+        const mode = document.getElementById('timMode').value;
+        const out = document.getElementById('timerResult');
+
+        if (!(fclk > 0) || psc < 0 || arr < 0) {
+          out.textContent = 'Valores invalidos.';
+          return;
+        }
+
+        const fcnt = fclk / (psc + 1);
+        let fupdate = fcnt / (arr + 1);
+        if (mode === 'center') {
+          // Aproximacion habitual para center aligned (doble recorrido)
+          fupdate = fupdate / 2;
+        }
+        const periodUs = (1 / fupdate) * 1e6;
+
+        out.textContent =
+          'f_cnt = ' + fcnt.toFixed(3) + ' Hz\n' +
+          'f_update = ' + fupdate.toFixed(3) + ' Hz\n' +
+          'T_update = ' + periodUs.toFixed(3) + ' us\n\n' +
+          'Nota: valida en RM0440 el comportamiento exacto segun modo y timer usado.';
+      }
+
+      document.getElementById('btnTimerCalc').addEventListener('click', calcTimer);
+
+      // Calculadora PLL (orientativa)
+      function calcPll() {
+        const src = Number(document.getElementById('pllSrc').value);
+        const M = Number(document.getElementById('pllM').value);
+        const N = Number(document.getElementById('pllN').value);
+        const R = Number(document.getElementById('pllR').value);
+        const out = document.getElementById('pllResult');
+
+        if (!(src > 0) || M <= 0 || N <= 0 || R <= 0) {
+          out.textContent = 'Valores invalidos.';
+          return;
+        }
+
+        const vcoIn = src / M;
+        const vcoOut = vcoIn * N;
+        const pllR = vcoOut / R;
+
+        out.textContent =
+          'fVCO_in  = ' + vcoIn.toFixed(3) + ' Hz\n' +
+          'fVCO_out = ' + vcoOut.toFixed(3) + ' Hz\n' +
+          'fPLL_R   = ' + pllR.toFixed(3) + ' Hz\n\n' +
+          'Aviso: esta calculadora es orientativa. Los rangos validos M/N/R y VCO se verifican en RM0440.';
+      }
+
+      document.getElementById('btnPllCalc').addEventListener('click', calcPll);
+
+      // Calculadora ventana
+      function calcWindow() {
+        const fs = Number(document.getElementById('fsHz').value);
+        const winMs = Number(document.getElementById('winMs').value);
+        const peakMs = Number(document.getElementById('peakMs').value);
+        const buffers = Number(document.getElementById('bufCount').value);
+        const out = document.getElementById('winResult');
+
+        if (!(fs > 0) || !(winMs > 0) || !(buffers > 0)) {
+          out.textContent = 'Valores invalidos.';
+          return;
+        }
+
+        const n = fs * (winMs / 1000);
+        const dtUs = 1e6 / fs;
+        const peakIndex = Math.max(0, Math.round((peakMs / 1000) * fs));
+        const totalSamples = n * buffers;
+
+        out.textContent =
+          'N por ventana = ' + n.toFixed(2) + ' muestras\n' +
+          'dt = ' + dtUs.toFixed(3) + ' us\n' +
+          'Indice estimado de pico = ' + peakIndex + '\n' +
+          'Muestras totales (buffers) = ' + totalSamples.toFixed(2) + '\n\n' +
+          'Consejo: redondea N a entero y adapta ARR/PSC para fs exacta.';
+      }
+
+      document.getElementById('btnWinCalc').addEventListener('click', calcWindow);
+
+      // Calculadora ley de Ohm + potencia
+      function calcOhm() {
+        const V = Number(document.getElementById('ohmV').value);
+        const I = Number(document.getElementById('ohmI').value);
+        const R = Number(document.getElementById('ohmR').value);
+        const mode = document.getElementById('ohmMode').value;
+        const out = document.getElementById('ohmResult');
+
+        if (mode === 'r') {
+          if (!(V >= 0) || !(I > 0)) { out.textContent = 'Valores invalidos para calcular R.'; return; }
+          const r = V / I;
+          const p = V * I;
+          out.textContent = 'R = ' + r.toFixed(6) + ' ohm\nP = ' + p.toFixed(6) + ' W\n\nRevisa tolerancia y margen termico de la resistencia.';
+          return;
+        }
+
+        if (mode === 'i') {
+          if (!(V >= 0) || !(R > 0)) { out.textContent = 'Valores invalidos para calcular I.'; return; }
+          const i = V / R;
+          const p = V * i;
+          out.textContent = 'I = ' + i.toFixed(9) + ' A\nP = ' + p.toFixed(6) + ' W\n\nComprueba que el pin/dispositivo soporta esa corriente.';
+          return;
+        }
+
+        if (!(I >= 0) || !(R >= 0)) { out.textContent = 'Valores invalidos para calcular V.'; return; }
+        const v = I * R;
+        const p = v * I;
+        out.textContent = 'V = ' + v.toFixed(6) + ' V\nP = ' + p.toFixed(6) + ' W\n\nRecuerda validar limites de tension de entrada/salida.';
+      }
+
+      document.getElementById('btnOhmCalc').addEventListener('click', calcOhm);
+
+      // Calculadora divisor resistivo y disipacion
+      function calcDivider() {
+        const Vin = Number(document.getElementById('divVin').value);
+        const R1 = Number(document.getElementById('divR1').value);
+        const R2 = Number(document.getElementById('divR2').value);
+        const Pmax = Number(document.getElementById('divPmax').value);
+        const out = document.getElementById('dividerResult');
+
+        if (!(Vin >= 0) || !(R1 > 0) || !(R2 > 0) || !(Pmax > 0)) {
+          out.textContent = 'Valores invalidos.';
+          return;
+        }
+
+        const Vout = Vin * (R2 / (R1 + R2));
+        const Itot = Vin / (R1 + R2);
+        const P1 = Itot * Itot * R1;
+        const P2 = Itot * Itot * R2;
+        const ok1 = (P1 <= (Pmax * 0.5));
+        const ok2 = (P2 <= (Pmax * 0.5));
+
+        out.textContent =
+          'Vout = ' + Vout.toFixed(6) + ' V\n' +
+          'I_div = ' + Itot.toFixed(9) + ' A\n' +
+          'P_R1 = ' + P1.toFixed(6) + ' W\n' +
+          'P_R2 = ' + P2.toFixed(6) + ' W\n\n' +
+          'Margen termico recomendado (usar <= 50% P nominal):\n' +
+          'R1: ' + (ok1 ? 'OK' : 'NO') + '\n' +
+          'R2: ' + (ok2 ? 'OK' : 'NO') + '\n\n' +
+          'Nota: si la carga en Vout no es alta impedancia, este calculo ideal cambia.';
+      }
+
+      document.getElementById('btnDividerCalc').addEventListener('click', calcDivider);
+
+      // Checklist persistente
+      const checklistBoxes = Array.from(document.querySelectorAll('.checklist input[type="checkbox"][data-item]'));
+      const STORE_KEY = 'stm32g431_manual_checklist_v1';
+
+      function loadChecklist() {
+        try {
+          const raw = localStorage.getItem(STORE_KEY);
+          const data = raw ? JSON.parse(raw) : {};
+          checklistBoxes.forEach(cb => {
+            cb.checked = !!data[cb.dataset.item];
+          });
+        } catch (_) {
+          // ignore
+        }
+      }
+
+      function saveChecklist() {
+        const data = {};
+        checklistBoxes.forEach(cb => {
+          data[cb.dataset.item] = cb.checked;
+        });
+        localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      }
+
+      checklistBoxes.forEach(cb => cb.addEventListener('change', saveChecklist));
+      document.getElementById('btnChecklistReset').addEventListener('click', () => {
+        checklistBoxes.forEach(cb => { cb.checked = false; });
+        saveChecklist();
+      });
+
+      // Init
+      loadChecklist();
+      calcTimer();
+      calcPll();
+      calcWindow();
+      calcOhm();
+      calcDivider();
+
+      if (location.hash) {
+        const id = location.hash.slice(1);
+        setActiveById(id);
+        const target = document.getElementById(id);
+        if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      } else {
+        updateActiveFromScroll();
+      }
+    })();
+  </script>
+</body>
+</html>

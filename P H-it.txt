@@ -1,0 +1,442 @@
+P H-it.
+Álvaro Hermida Rodríguez.
+
+Resumen:
+Estoy haciendo un sistema capaz de medir con precisión la fuerza de un puñetazo sobre una superficie plana. La idea es colocar el sistema contra una pared, y golpear contra esta.
+Consta de un microcontrolador: Puede ser el STM32G431CBU6 o el RP2040 ( predilección por aprender el uso de STM).
+Visualizamos los datos a traves de una Pantalla: Ahora mismo disponemos de una pantalla KMRTM28028 TFT SPI 240*320 que acepta los module drivers: ST7735 ILI9341 ILI9225.
+Un modulo con el que medir las dimensiones del impacto.
+Un traductor de los voltajes del modulo que son Analogicas y cada una con sus de voltajes, a una señal digital que pueda leer de forma muy rapida el STM.
+Un boton para resetear el sistema en cualquier momento.
+
+a/Necesitamos saber como medir la fuerza del puñetazo, que dimensiones del puñetazo queremos medir, que componentes necesitaremos. Por ejemplo, Usar 5 load cells S-Type de hasta 100Kg en conjunto con los chips 
+AD623 y ADS1115, esto colocado sobre una plataforma de 25cm^2 tendriamos una estimación de Kg/cm^2, si usasemos algún sensor de presión podríamos tener bares o mm de mercurio o atm. si usasemos un Velocimetro o 
+algun sensor para calcular la aceleración, necesitaria que el sistema tuviese una parte movil y que fuese muy resistente y a lo mejor si lo mezclo con las load cell, podriamos tener Kg.m/s^2 y hacer una ligera 
+estimación de la fuerza en Newtons. Cual es la mejor forma de medir un impacto? cuales son las escalas estandarizadas? Que necesito para medir las dimensiones de esas escalas? existen materiales que me permitan
+hacer una lectura de esas escalas en tiempo real? es decir quiero tener los datos del golpe, saber si al impactar sube mas lento la presion o fuerza que ejerce el impacto o si al golpear despues salio el puño
+rebotado y el pico de fuerza fue solo en el impacto, etc. Porque una de las partes es sacar una grafica con los valores de la escala en cada unidad de tiempo minima que pueda leer, es decir, si puedo hacer en 50ms 
+que puede durar el golpe, 60 lecturas, pues hacer un grafico con esas 60 lecturas y despues mostrarlas por pantalla.
+
+a-
+
+Respuesta honesta y basada en sistemas reales:
+
+1) Cual es la mejor forma de medir un impacto?
+
+- Si quieres medir FUERZA de impacto en una superficie fija, la opcion mas robusta es celda(s) de carga + estructura mecanica bien definida + muestreo rapido.
+- Si quieres medir PRESION (fuerza/area), necesitas ademas estimar area efectiva de contacto. Sin eso, solo tienes fuerza total.
+- Si quieres energia/impulso del golpe, fuerza-tiempo (integral) es mas util que un unico pico.
+
+2) Tu idea de 5 load cells S-Type + AD623 + ADS1115: pros y contras reales
+
+Pros:
+- Arquitectura conocida y documentada.
+- Redundancia espacial (varias celdas) para detectar zona de impacto.
+
+Contras:
+- ADS1115 no es buena eleccion para impactos rapidos: su velocidad maxima real (860 SPS) es baja para capturar picos de 10-30 ms con buena resolucion temporal.
+- AD623 funciona, pero para puente extensometrico suele ser mejor un front-end dedicado (HX711 para bajo coste, ADS1232/ADS126x para precision/velocidad).
+- 5 celdas S-Type puede complicar mucho mecanica y calibracion; es mas facil introducir errores por reparto no uniforme de carga.
+
+3) Recomendacion tecnica (en orden de viabilidad)
+
+Opcion A (prototipo rapido y barato):
+- 1 celda de carga de compresion robusta (o 4 en esquinas tipo bascula) + HX711.
+- Valida concepto, pero no esperes excelente respuesta temporal para forma de onda fina.
+
+Opcion B (la que te recomiendo para tu objetivo):
+- 1-4 celdas de carga de compresion + amplificador de instrumentacion de bajo ruido + ADC externo rapido (>= 4 kSPS por canal, mejor 10 kSPS si quieres buena forma de onda).
+- STM32G431CBU6 como MCU principal para temporizacion y procesamiento.
+
+Opcion C (orientada a biomecanica/deporte, mas compleja):
+- Fuerza (celdas) + acelerometro de alta G en masa de impacto conocida para contrastar datos.
+- Permite extraer mas metricas, pero sube mucho la complejidad de calibracion y modelado.
+
+4) Escalas/metricas estandarizadas recomendables
+
+- Fuerza pico: N o kN (no kg, salvo visualizacion secundaria en kgf).
+- Impulso: N*s (integral F(t)dt).
+- Tiempo a pico: ms.
+- Duracion efectiva del impacto: ms (por encima de umbral relativo/absoluto).
+- Tasa de desarrollo de fuerza (RFD): dF/dt (N/s).
+- Si quieres mostrar presion: kPa o bar, pero solo si defines bien el area de contacto.
+
+5) Sobre area de impacto/dimensiones del golpe
+
+- Medir area real en tiempo real es dificil y caro.
+- Solucion realista: matriz resistiva (FSR array) o piezoresistiva. Pros: mapa espacial. Contras: historesis, deriva y poca precision absoluta.
+- Solucion intermedia: 4 celdas en esquinas para centro de presion aproximado (CoP), no area exacta.
+
+6) Frecuencia de muestreo para tu objetivo de grafica
+
+- Tu ejemplo: 60 lecturas en 50 ms = 1200 Hz (1.2 kSPS).
+- Minimo util para impacto: 1-2 kSPS.
+- Recomendado para forma de onda util: 5-10 kSPS.
+- Con ADS1115 no llegas bien; con ADC externo rapido si.
+
+7) Materiales/estructura para lectura en tiempo real
+
+- Placa de impacto rigida (acero/aluminio) + capa elastomerica controlada para proteger sensor.
+- Tope mecanico para evitar sobrecarga de celdas.
+- Montaje simetrico para repartir carga.
+- Filtro analogico anti-alias antes de ADC + filtro digital ligero.
+
+8) Conclusion sincera
+
+- El camino de load cells es correcto para fuerza de impacto.
+- El punto debil actual de tu planteamiento es el ADC (ADS1115) y la mecanica/calibracion.
+- Si corriges eso, el proyecto es totalmente viable y tecnicamente serio.
+
+b/ para evitar problemas quiero desarrollar un sistema de estados para ello definire como funciona el sistema:
+
+    encendemos el sistema con un boton que conecta la corriente, este al encenderse pone la pantalla en rojo, hace una tara del sistema y se prepara para hacer la lectura, limpiando variables o lo que necesite,
+    al acabar se pone la pantalla en verde indicando que podemos golpear.
+
+    una vez comience el impacto, ( a partir de que se detecte cierta cantidad de fuerza por ej si son load cells: 2kg) comienza a medir a maxima velocidad y a registrar los datos del golpe. 
+    siempre se registran el mismo numero de datos, dure el golpe 1 ms que si dura 100ms, esto es para simplificar la creacion del grafico y para conseguir un valor medio y el valor maximo del golpe,
+    del valor medio solo se usaran los valores registrados desde valor-maximo/2 a valor maximo, esta variable es para saber la consistencia del golpe en el tiempo, si el golpe dura 80ms y durante 40ms mantuvimos 
+    el pico del golpe, no es lo mismo que si el golpe dura 80ms y el valor medio solo registra 10ms, el resto fue una persona empujando el sistema mas que un golpe de impacto.
+
+    una vez se registra el impacto, se hacen los calculos del valor medio, y se muestran por pantalla la grafica del golpe, el valor medio el tiempo que se considero impacto (si el golpe se mide desde
+    2kg a un maximo de 500kg y despues de golpear vuelve a 0kg el impacto que registramos va de 2kg a 260kg en 10ms y se reduce a 190kg en 10ms y despues en otros 5ms baja a 0kg aunque el sistema siempre mida
+    80ms, el golpe real son el tiempo que medimos valores por encima de 260/2, que en el ejemplo son aproximadamente 15ms) y tambien mostramos el valor maximo del golpe.
+
+    en pantalla ahora mismo tenemos la grafica, el valor medio, el tiempo que dura el impacto, el valor maximo y un mensaje que dice que pulsemos el boton para nuevo golpe. Si lo pulsamos la pantalla
+    pasara a rojo, se hace la tara y se prepara el sistema y pasara a verde y se mantendra hasta que golpeemos el sistema y repetimos el proceso.
+
+    El boton se puede pulsar en cualquier momento, da igual que sea cuando el sistema esta esperando el golpe (pantalla en verde) o que sea cuando estan los graficos en pantalla, el unico momento que no hara nada pulsar
+    el botón es cuando se este haciendo la tara, porque su finalidad es avisarnos de cuando vamos a recibir un impacto y preparar el sistema.
+
+Crea el diagrama de estados, usa la nocacion Q == Número de estado, T- tarea a realizar en ese estado, V- Valores que hacen que cambiemos de estado. 
+
+b-
+
+Diagrama de estados (notacion solicitada):
+
+Q0
+T- Sistema apagado, sin adquisicion.
+V- Boton de encendido/alimentacion -> Q1.
+
+Q1
+T- INIT: inicializa MCU, ADC, pantalla, buffers. Pantalla rojo. Limpia variables.
+V- Inicializacion completa -> Q2.
+
+Q2
+T- TARA/Baseline: toma N muestras sin impacto, calcula offset y ruido base, guarda umbral dinamico.
+V- Tara valida -> Q3.
+V- Error de tara (ruido excesivo/saturacion) -> Q7.
+
+Q3
+T- ARMADO/READY: pantalla verde, espera impacto. Adquisicion ligera para detectar trigger.
+V- Boton reset -> Q2.
+V- Fuerza filtrada > umbral_trigger (ej: max(2 kgf, baseline+K*sigma)) -> Q4.
+
+Q4
+T- CAPTURA RAPIDA: muestreo a fs fija alta, guarda ventana fija (ej 80 ms) en buffer circular/lineal.
+V- Ventana completa -> Q5.
+V- Boton reset -> ignorado en este estado (recomendado para no truncar datos) o marcado para ejecutar tras Q5.
+
+Q5
+T- PROCESADO: calcula Fmax, Fmedia util (segun criterio), tiempo de impacto, impulso, RFD. Genera puntos de grafica.
+V- Procesado completo -> Q6.
+V- Error numerico/saturacion -> Q7.
+
+Q6
+T- DISPLAY RESULTADOS: muestra grafica y metricas. Mensaje "pulsa boton para nuevo golpe".
+V- Boton reset -> Q2.
+
+Q7
+T- ERROR: muestra codigo de error (tara invalida, saturacion ADC, sobrecarga sensor, etc.).
+V- Boton reset -> Q2.
+
+Notas de diseno (importantes):
+- Mantener N fijo de muestras por golpe simplifica comparacion y grafica (correcto).
+- Tu criterio de impacto "desde Fmax/2 a Fmax" es util para consistencia, pero guarda tambien:
+    1) duracion total sobre umbral absoluto,
+    2) duracion sobre umbral relativo (ej 50% Fmax).
+- Asi comparas golpes fuertes y flojos sin sesgo.
+
+c/ como historias de usuario he definido estas:
+
+    como usuario quiero que al iniciar el sistema este se prepare para recibir el primer impacto lo antes posible para no perder tiempo.
+
+    como usuario quiero que el impacto sea registrado con la maxima precisión posible, tanto en las dimensiones a medir como en el tiempo para poder analizar mejor los golpes que he entrenado.
+
+    como usuario quiero poder reiniciar el sistema las veces necesarias para poder usarlo de forma continua sin tener que apagarlo y volver a encenderlo.
+
+    como usuario quiero poder visualizar los datos por la pantalla de forma sencilla e intuitiva para no necesitar 
+
+crees que falta alguna o que alguna de ellas sería mas especificable?
+
+c-
+
+Tus historias van bien, pero aun estan poco verificables. Te propongo version mas especifica (medible):
+
+1) Preparacion rapida
+- Como usuario, quiero que tras encender o resetear, el sistema entre en estado listo en <2 s para entrenar sin esperas.
+
+2) Precision temporal y de amplitud
+- Como usuario, quiero que el sistema muestree a >=2 kSPS (objetivo 5 kSPS) y mida fuerza con error <5% FS para analizar la forma real del golpe.
+
+3) Reinicio continuo
+- Como usuario, quiero poder lanzar una nueva medicion con un solo boton en cualquier estado no critico para usar el equipo de forma continua.
+
+4) Visualizacion clara
+- Como usuario, quiero ver en pantalla Fmax, impulso, tiempo a pico y duracion efectiva junto a la grafica para interpretar cada golpe en segundos.
+
+Historias que te faltan (recomendadas):
+
+5) Seguridad de hardware
+- Como usuario, quiero que el sistema detecte sobrecarga/saturacion y avise para evitar romper sensores o leer datos falsos.
+
+6) Calibracion trazable
+- Como usuario, quiero ejecutar una calibracion con masas conocidas y guardar coeficientes para asegurar repetibilidad entre sesiones.
+
+7) Integridad de datos
+- Como usuario, quiero que cada golpe quede almacenado con marca de tiempo e identificador para comparar progreso.
+
+8) Robustez de ruido
+- Como usuario, quiero que el sistema rechace vibraciones de fondo y falsos disparos para que solo se registren impactos reales.
+
+d/ Dame un resumen de lo que entendiste del sistema, cual es tu valoración del proyecto, que direcciones crees que se pueden seguir? que crees que me falta por pensar o que no estoy teniendo en cuenta?
+
+d-
+
+Lo que entendi del sistema:
+- Quieres un medidor de impacto en pared que capture la dinamica temporal del golpe, no solo un numero pico.
+- El flujo de uso prioriza rapidez: armar, golpear, ver resultado, resetear y repetir.
+- Buscas extraer calidad del golpe (consistencia/forma de onda), no solo fuerza bruta.
+
+Valoracion sincera del proyecto:
+- La idea es buena y tiene valor real para entrenamiento/analisis.
+- El mayor riesgo no esta en el firmware ni en la pantalla: esta en la mecanica + cadena analogica + calibracion.
+- Si esa parte se diseña bien, el resto (estados, UI, metricas) es totalmente factible.
+
+Direcciones posibles (pros y contras):
+
+Direccion 1: MVP robusto de fuerza-tiempo (recomendada)
+- Que haces: fuerza total + curva temporal + 3-5 metricas clave.
+- Pros: realizable en menos tiempo, medible, util desde ya.
+- Contras: no da area/presion exacta de contacto.
+
+Direccion 2: Fuerza + localizacion aproximada
+- Que haces: 4 sensores para estimar centro de impacto.
+- Pros: mas informacion tecnica del golpe.
+- Contras: sube mucho calibracion y sensibilidad al montaje.
+
+Direccion 3: Presion/area avanzada
+- Que haces: matriz sensora de presion.
+- Pros: mapa espacial completo.
+- Contras: coste alto, precision absoluta peor, mantenimiento/calibracion compleja.
+
+Que te falta pensar (puntos criticos):
+
+1) Especificacion metrologica concreta
+- Rango maximo esperado (N), error permitido (%FS), repetibilidad, fs objetivo.
+
+2) Sobrecarga y seguridad mecanica
+- Topes fisicos, fatiga de materiales, proteccion de sensores.
+
+3) Calibracion y validacion
+- Procedimiento con pesos/impactos de referencia y criterios de aceptacion.
+
+4) Antialias y ruido EMI
+- Filtrado analogico, masas, cableado apantallado, fuente limpia.
+
+5) Saturacion y clipping
+- Si saturas ADC o amplificador, tu pico deja de ser valido aunque el numero "parezca" grande.
+
+6) Definicion de metricas para entrenamiento
+- Decide desde el inicio cuales metricas guian progreso para no redisenar despues.
+
+Recomendacion final directa:
+- Usa STM32G431CBU6.
+- Evita ADS1115 para captura de impacto.
+- Cierra primero un MVP de fuerza-tiempo fiable; deja presion/area avanzada para version 2.
+
+e/ Propuesta concreta de BOM inicial para MVP (STM32G431 + ADC rapido)
+
+Objetivo del MVP:
+- Medir fuerza-tiempo de un golpe con buena forma de onda, mostrar grafica y metricas en pantalla, y permitir ciclos rapidos de entrenamiento.
+
+e-
+
+Arquitectura recomendada (MVP v1):
+- Sensor principal: 1 celda de carga de compresion robusta (o 4 celdas en esquinas si quieres centro de impacto aproximado).
+- Cadena analogica: amplificador de instrumentacion + ADC externo rapido por SPI.
+- MCU: STM32G431CBU6.
+- HMI: pantalla TFT SPI + boton reset.
+
+BOM minimo (funcional y realista):
+
+1) Microcontrolador
+- Opcion directa: STM32G431CBU6 en placa propia.
+- Opcion rapida para desarrollo: NUCLEO-G431KB (muy recomendable para acortar tiempo de firmware).
+
+2) Sensor de fuerza
+- Opcion simple: 1x celda de carga de compresion (rango segun objetivo, por ejemplo 200 kgf a 500 kgf equivalentes).
+- Opcion mejor para distribuir impacto: 4x celdas de carga tipo barra en esquinas + placa superior rigida.
+
+3) Front-end analogico y ADC (clave)
+- Amplificador de instrumentacion:
+    - INA826 (equilibrio coste/rendimiento).
+    - INA333 (bajo consumo/ruido, mas limitado en ancho de banda segun configuracion).
+- ADC externo SPI (evitar ADS1115 para impacto):
+    - ADS131M02 (24-bit, simultaneo, muy buena opcion para forma de onda y crecimiento futuro).
+    - ADS127L01 (alto rendimiento, mas complejo y caro).
+    - MCP3561/2 (buena opcion intermedia).
+
+4) Referencia y alimentacion analogica
+- Referencia de voltaje precisa:
+    - ADR4525 (2.5 V) o REF5025.
+- LDO limpio analogico:
+    - TPS7A49/TPS7A20 (segun rail necesario) o equivalente low-noise.
+- Separacion de dominios: rail analogico y digital con filtrado (ferrita + RC/LC).
+
+5) Protecciones y robustez
+- TVS en alimentacion y entrada de boton/cables largos.
+- Resistencias serie en entradas sensibles y filtros RC anti-alias.
+- Tope mecanico fisico para evitar sobrecarga de celdas.
+
+6) Interfaz de usuario
+- Pantalla actual KMRTM28028 TFT SPI (driver ILI9341/ST77xx segun modulo).
+- 1 boton tactil/industrial para reset nuevo intento.
+- (Opcional) buzzer o LED para feedback de estado (armado/listo/error).
+
+7) Almacenamiento (opcional pero recomendado)
+- Memoria externa SPI flash (W25Qxx) o microSD para guardar sesiones de golpes.
+
+8) Mecanica (tan importante como la electronica)
+- Placa frontal de impacto (acero/aluminio) con capa elastomerica de proteccion.
+- Subestructura rigida con montaje repetible de sensores.
+- Tornilleria y separadores que minimicen flexiones parasitas.
+
+Lista de compra por fases (para no quemar presupuesto):
+
+Fase 1 (validar medicion):
+- NUCLEO-G431KB.
+- 1 celda de carga de compresion.
+- INA826 en placa prototipo o modulo de evaluacion.
+- ADC externo SPI (idealmente ADS131M02 o modulo equivalente).
+- Fuente estable y cableado apantallado corto.
+
+Fase 2 (producto de entrenamiento):
+- PCB propia con STM32G431CBU6 + ADC + analogica limpia.
+- 4 celdas de carga (si quieres localizacion aproximada).
+- Mecanica definitiva con topes y absorcion controlada.
+
+Pros y contras de esta BOM:
+
+Pros:
+- Escalable: sirve para MVP y para version mas seria.
+- Captura temporal util para analisis real del golpe.
+- Te obliga a construir una base metrologica correcta desde el inicio.
+
+Contras:
+- Mas compleja que HX711 basico.
+- Mayor exigencia de PCB y layout analogico.
+- Calibracion mecanica y electrica obligatoria para datos fiables.
+
+Regla practica final:
+- Si tu prioridad es aprender y tener resultados buenos: STM32G431 + ADC SPI rapido + mecanica sencilla pero robusta.
+- Si tu prioridad fuera solo "que funcione ya" con menos esfuerzo: HX711, aceptando perdida de detalle temporal.
+
+f/ Presupuestos aproximados (todos < 200 EUR)
+
+Condiciones de este apartado:
+- Precios orientativos en EUR (marzo 2026), pueden variar por proveedor, stock e impuestos/envio.
+- SOLO componentes electronicos principales (MCU, ADC, amplificadores, load cells, pantalla, memoria, fuentes/modulos).
+- NO se incluyen resistencias, cables, conectores, leds, botones, tornilleria, PCB ni mecanica.
+
+f-
+
+Sistema 1: MVP economico (valida concepto rapido)
+
+Componentes:
+- NUCLEO-G431KB: 18-25 EUR
+- 1x load cell compresion 200-300 kg: 20-35 EUR
+- 1x HX711 modulo: 2-5 EUR
+- Pantalla TFT SPI 2.8" ILI9341/ST77xx: 8-15 EUR
+- (Opcional) SPI Flash W25Qxx: 1-3 EUR
+
+Total aproximado:
+- Sin memoria: 48-80 EUR
+- Con memoria: 49-83 EUR
+
+Pros:
+- Muy barato y rapido de montar.
+- Ideal para validar flujo de estados, UI y logica de golpe.
+
+Contras:
+- Menor calidad temporal para forma de onda fina.
+- Menos margen para metricas avanzadas.
+
+Sistema 2: Equilibrado recomendado (calidad/precio)
+
+Componentes:
+- NUCLEO-G431KB: 18-25 EUR
+- 1x load cell compresion 300-500 kg: 25-45 EUR
+- 1x INA826 (modulo o IC): 6-15 EUR
+- 1x ADC SPI (MCP3561/2 o ADS131M02 segun oferta): 12-28 EUR
+- Referencia precisa (ADR4525/REF5025): 4-8 EUR
+- LDO low-noise (modulo o IC): 3-8 EUR
+- Pantalla TFT SPI 2.8": 8-15 EUR
+- (Opcional) SPI Flash/microSD modulo: 2-6 EUR
+
+Total aproximado:
+- Sin memoria: 76-144 EUR
+- Con memoria: 78-150 EUR
+
+Pros:
+- Muy buena base para medir curva fuerza-tiempo con utilidad real.
+- Escalable a version final.
+
+Contras:
+- Exige mas cuidado en alimentacion analogica y calibracion.
+
+Sistema 3: 4 load cells para localizacion aproximada (sin pasar 200)
+
+Componentes:
+- NUCLEO-G431KB: 18-25 EUR
+- 4x load cells barra 50-100 kg (esquinas): 40-80 EUR (pack)
+- 2x HX711 (2 celdas por modulo) o 1 ADC multicanal segun arquitectura: 4-30 EUR
+- 1x INA826 (si usas cadena analogica dedicada): 6-15 EUR
+- Pantalla TFT SPI 2.8": 8-15 EUR
+- Referencia + LDO (si aplican): 7-16 EUR
+
+Total aproximado:
+- Version HX711: 70-140 EUR
+- Version ADC mas seria: 90-181 EUR
+
+Pros:
+- Permite estimar centro de impacto (CoP aproximado).
+- Mejora analisis tecnico del golpe.
+
+Contras:
+- Calibracion mecanica bastante mas compleja.
+- Mayor probabilidad de errores por reparto de carga.
+
+Sistema 4: Comparativo RP2040 (por coste, no por prioridad tecnica)
+
+Componentes:
+- RP2040 board (Pico o equivalente): 5-12 EUR
+- 1x load cell compresion 200-300 kg: 20-35 EUR
+- 1x INA826: 6-15 EUR
+- 1x ADC SPI rapido: 12-28 EUR
+- Pantalla TFT SPI 2.8": 8-15 EUR
+- Referencia + LDO: 7-16 EUR
+
+Total aproximado:
+- 58-121 EUR
+
+Pros:
+- Muy economico.
+- Comunidad y ejemplos abundantes.
+
+Contras:
+- Para este proyecto, STM32G431 suele darte mejor camino en temporizacion/control fino y crecimiento a firmware mas industrial.
+
+Resumen directo de presupuesto recomendado:
+- Si quieres empezar YA y barato: Sistema 1 (50-80 EUR aprox).
+- Si quieres datos de verdad para entrenar: Sistema 2 (80-150 EUR aprox, recomendado).
+- Si quieres anadir localizacion de impacto sin superar 200 EUR: Sistema 3 version ADC seria (90-181 EUR).

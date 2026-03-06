@@ -1,0 +1,585 @@
+STM32G431CBU6 Tutorial (base practica y tecnica)
+
+Objetivo de este documento
+- Tener una base real para entender el STM32G431 por dentro.
+- Saber como pensar pines, relojes, interrupciones y timers.
+- Mejorar tus prompts y tus decisiones de diseno/firmware.
+- Tener ejemplos en C (HAL y tambien algo de registros).
+
+Nota importante de honestidad tecnica
+- Este tutorial te da una base muy solida, pero para valores exactos (pinout, AF por pin, limites de reloj y bits concretos de registros) SIEMPRE valida en:
+  1) Datasheet del STM32G431CBU6.
+  2) Reference Manual de STM32G4 (RM).
+  3) Tu .ioc de CubeMX/CubeIDE.
+- En STM32, casi todo depende de paquete, revision y configuracion de clock.
+
+==================================================
+1) Que micro es el STM32G431CBU6?
+==================================================
+
+Resumen rapido
+- Familia: STM32G4 (orientada a control, analogico, tiempo real).
+- Core: ARM Cortex-M4F (con FPU de punto flotante).
+- Enfoque fuerte: timers avanzados, ADC rapido, comparadores, opamps internos (segun variante), buen rendimiento para control de motor, conversion de energia e instrumentacion.
+
+Por que importa para tu proyecto de impacto
+- Puedes muestrear rapido y temporizar muy bien.
+- Puedes usar timers + DMA + ADC para capturas deterministas.
+- Mejor que muchas opciones de bajo coste para aplicaciones "medir senal en tiempo".
+
+==================================================
+2) Mapa mental interno del STM32
+==================================================
+
+Piensalo como bloques:
+- CPU (Cortex-M4F): ejecuta tu codigo.
+- Clock tree: genera relojes (SYSCLK, HCLK, PCLKx, etc).
+- Bus matrix (AHB/APB): conecta CPU con perifericos.
+- Flash y SRAM: donde vive programa y datos.
+- NVIC: gestor de interrupciones.
+- Perifericos: GPIO, TIM, ADC, SPI, I2C, USART, DMA, etc.
+
+Flujo tipico de un sistema de medida
+1) Configuras reloj.
+2) Configuras GPIO/perifericos.
+3) Configuras timer para base temporal.
+4) Timer dispara ADC.
+5) ADC guarda por DMA en buffer.
+6) CPU procesa buffer y pinta pantalla.
+
+==================================================
+3) Pines: cada pin tiene funcion fija?
+==================================================
+
+Respuesta corta: NO totalmente.
+
+Regla real
+- Un pin STM32 suele tener:
+  1) Funcion GPIO normal (entrada/salida).
+  2) Varias funciones alternativas (AF): SPI, I2C, USART, TIM_CHx, etc.
+  3) A veces funciones analogicas (ADC_INx, OPAMP input, COMP input).
+
+Lo que SI es fijo
+- No todos los pines tienen todas las AF.
+- Algunas funciones solo existen en pines concretos.
+- Pines SWD (debug) conviene no tocarlos al inicio.
+
+Como decidir pinout sin romperte
+1) Abre CubeMX.
+2) Activa perifericos que necesitas (SPI pantalla, ADC, TIM, UART debug).
+3) Deja que Cube sugiera pines.
+4) Ajusta manualmente evitando conflictos.
+5) Reserva SWD y al menos un UART para depurar.
+
+Consejo clave
+- No cierres pinout al principio. Primero valida arquitectura y clocks.
+
+==================================================
+4) Sistema de reloj (clock tree)
+==================================================
+
+Sin esto no controlas timers ni ADC correctamente.
+
+Conceptos
+- SYSCLK: reloj principal de CPU.
+- HCLK: reloj del bus AHB.
+- PCLK1/PCLK2: relojes APB de perifericos.
+- PLL: multiplica/divide reloj para alcanzar frecuencia deseada.
+
+Fuentes tipicas
+- HSI (interno), HSE (cristal externo), PLL.
+
+Impacto real
+- Frecuencia de timer y ADC depende de este arbol.
+- Si no entiendes clocks, no entiendes por que "mi timer no da 10 kHz".
+
+==================================================
+5) GPIO: modos utiles
+==================================================
+
+Modos tipicos
+- Input.
+- Output push-pull.
+- Output open-drain.
+- Alternate function.
+- Analog.
+
+Parametros importantes
+- Pull-up/Pull-down.
+- Velocidad (speed).
+- Tipo de salida.
+
+Errores comunes
+- Dejar pin en analog cuando querias AF.
+- Usar open-drain sin pull-up externo/interno.
+- No configurar velocidad adecuada para SPI rapido.
+
+==================================================
+6) Interrupciones (NVIC + EXTI + perifericos)
+==================================================
+
+Tipos que usaras mucho
+- EXTI: interrupcion por pin (boton, trigger externo).
+- Timer update/compare.
+- ADC end-of-conversion o DMA complete.
+- SPI/UART RX/TX.
+
+Buenas practicas
+- ISR corta y rapida. Nada de calculos pesados ni prints largos.
+- En ISR: marca bandera y sal.
+- Procesa en loop principal o tarea separada.
+
+Prioridades
+- Menor numero = mayor prioridad (en NVIC).
+- No pongas todo a prioridad maxima.
+
+Ejemplo EXTI (HAL)
+
+```c
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if (GPIO_Pin == GPIO_PIN_13) {
+		g_reset_requested = 1;  // Solo bandera
+	}
+}
+```
+
+==================================================
+7) Timers: lo que mas debes dominar
+==================================================
+
+Por que son clave
+- Base de tiempo precisa.
+- PWM.
+- Captura de eventos.
+- Disparo de ADC.
+
+Regla base (timer upcount)
+- f_timer_cnt = f_timer_clk / (PSC + 1)
+- f_update = f_timer_cnt / (ARR + 1)
+- Periodo = 1 / f_update
+
+Donde:
+- PSC = prescaler.
+- ARR = auto-reload register.
+
+Ejemplo de calculo
+Objetivo: interrupcion cada 100 us (10 kHz)
+
+Supongamos f_timer_clk = 170 MHz.
+Quieres f_update = 10 kHz.
+
+Estrategia 1:
+- PSC = 169  -> f_timer_cnt = 170 MHz / 170 = 1 MHz
+- ARR = 99   -> f_update = 1 MHz / 100 = 10 kHz
+
+Resultado: tick cada 100 us.
+
+Tips
+- Busca que f_timer_cnt sea un numero facil (1 MHz o 10 MHz).
+- Evita ARR demasiado pequeno si necesitas resolucion fina de duty/trigger.
+
+==================================================
+8) Configurar un timer (HAL)
+==================================================
+
+Ejemplo base TIM6 para interrupcion periodica
+
+```c
+TIM_HandleTypeDef htim6;
+
+static void MX_TIM6_Init(void)
+{
+	__HAL_RCC_TIM6_CLK_ENABLE();
+
+	htim6.Instance = TIM6;
+	htim6.Init.Prescaler = 169;      // 170 MHz -> 1 MHz
+	htim6.Init.Period = 99;          // 1 MHz / 100 = 10 kHz
+	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
+	if (HAL_TIM_Base_Init(&htim6) != HAL_OK) {
+		Error_Handler();
+	}
+
+	HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 1, 0);
+	HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
+}
+
+void Start_Timer6(void)
+{
+	HAL_TIM_Base_Start_IT(&htim6);
+}
+
+void TIM6_DAC_IRQHandler(void)
+{
+	HAL_TIM_IRQHandler(&htim6);
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM6) {
+		g_sample_tick = 1;
+	}
+}
+```
+
+==================================================
+9) Configurar timer por registros (idea minima)
+==================================================
+
+```c
+void TIM6_Register_Init(void)
+{
+	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM6EN;
+
+	TIM6->PSC = 169;
+	TIM6->ARR = 99;
+	TIM6->DIER |= TIM_DIER_UIE;      // Update interrupt enable
+	TIM6->CR1 |= TIM_CR1_CEN;        // Counter enable
+
+	NVIC_SetPriority(TIM6_DAC_IRQn, 1);
+	NVIC_EnableIRQ(TIM6_DAC_IRQn);
+}
+
+void TIM6_DAC_IRQHandler(void)
+{
+	if (TIM6->SR & TIM_SR_UIF) {
+		TIM6->SR &= ~TIM_SR_UIF;
+		g_sample_tick = 1;
+	}
+}
+```
+
+Cuando usar registros directos
+- Cuando necesitas control fino y minima latencia.
+- Cuando HAL te limita o no entiendes que esta haciendo.
+
+==================================================
+10) ADC: captura real de senal
+==================================================
+
+Para impactos, idea recomendada
+- Trigger por timer (no por software).
+- Transferencia por DMA.
+- Buffer fijo de N muestras.
+
+Ventaja
+- Muestreo uniforme y repetible.
+- CPU libre para procesado/UI.
+
+Ejemplo conceptual HAL
+
+```c
+#define NSAMPLES 400
+uint16_t adc_buf[NSAMPLES];
+
+void Start_Adc_Dma_Capture(void)
+{
+	// ADC configurado en Cube para trigger externo desde TIMx TRGO
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buf, NSAMPLES);
+	HAL_TIM_Base_Start(&htim6); // El timer dispara las conversiones
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+	if (hadc->Instance == ADC1) {
+		g_capture_done = 1;
+		HAL_TIM_Base_Stop(&htim6);
+	}
+}
+```
+
+Nota
+- Si usas ADC externo SPI, el concepto es igual: reloj temporal estable + buffer + DMA SPI si procede.
+
+==================================================
+11) DMA: por que te cambia el proyecto
+==================================================
+
+Sin DMA
+- CPU atiende cada muestra: peor jitter, menos tiempo para UI.
+
+Con DMA
+- Transferencia automatica de periferico a RAM.
+- Mejor para adquisicion continua o bursts.
+
+Para tu caso
+- ADC->RAM por DMA es casi obligatorio si quieres forma de onda limpia y UI al mismo tiempo.
+
+==================================================
+12) Formula rapida para tus prompts tecnicos
+==================================================
+
+Si quieres pedir ayuda muy precisa, manda siempre estos datos:
+
+Plantilla de prompt tecnico
+1) Micro exacto y frecuencia de reloj real.
+2) Perifericos implicados (TIMx, ADCx, SPIx, DMA canal).
+3) Objetivo numerico (ej: 5 kSPS, ventana 80 ms, 400 muestras).
+4) Restricciones (latencia, RAM, precision).
+5) Codigo actual minimo reproducible.
+
+Ejemplo de prompt bueno
+"STM32G431 @170MHz. Quiero 5kSPS durante 80ms (400 muestras) desde ADC1 usando TIM6 TRGO y DMA. Muestrame init HAL completo y como detectar inicio por umbral sin perder las primeras muestras".
+
+==================================================
+13) Sistema de estados sugerido para firmware
+==================================================
+
+Estados tipicos
+- INIT
+- TARE
+- ARMED
+- CAPTURE
+- PROCESS
+- DISPLAY
+- ERROR
+
+Regla
+- Cada estado hace poco y claro.
+- Transiciones por evento.
+- Evita logica "todo en while(1) sin estructura".
+
+Esqueleto
+
+```c
+typedef enum {
+	ST_INIT,
+	ST_TARE,
+	ST_ARMED,
+	ST_CAPTURE,
+	ST_PROCESS,
+	ST_DISPLAY,
+	ST_ERROR
+} app_state_t;
+
+volatile app_state_t g_state = ST_INIT;
+
+void App_Run(void)
+{
+	switch (g_state) {
+	case ST_INIT:
+		App_InitAll();
+		g_state = ST_TARE;
+		break;
+	case ST_TARE:
+		if (Do_Tare()) g_state = ST_ARMED;
+		else g_state = ST_ERROR;
+		break;
+	case ST_ARMED:
+		if (g_reset_requested) g_state = ST_TARE;
+		else if (Detect_ImpactTrigger()) g_state = ST_CAPTURE;
+		break;
+	case ST_CAPTURE:
+		Start_Capture();
+		g_state = ST_PROCESS;
+		break;
+	case ST_PROCESS:
+		if (Process_Capture()) g_state = ST_DISPLAY;
+		else g_state = ST_ERROR;
+		break;
+	case ST_DISPLAY:
+		Draw_Result();
+		if (g_reset_requested) g_state = ST_TARE;
+		break;
+	case ST_ERROR:
+		Show_Error();
+		if (g_reset_requested) g_state = ST_TARE;
+		break;
+	}
+}
+```
+
+==================================================
+14) Interrupciones que probablemente usaras en tu proyecto
+==================================================
+
+- TIM update interrupt: marca tick o sincroniza eventos.
+- ADC DMA half/full complete: procesamiento por bloques.
+- EXTI boton: reset/nueva adquisicion.
+- SPI DMA complete: transferencias pantalla/ADC externo.
+- UART RX interrupt (opcional): comandos/debug en vivo.
+
+Prioridades sugeridas (ejemplo)
+- Alta: ADC/DMA de adquisicion.
+- Media: timer de control.
+- Baja: UI/pantalla y debug serial.
+
+==================================================
+15) Filtros y metrica (muy importante para impacto)
+==================================================
+
+Para no enganarte con ruido
+- Filtrado analogico suave antes de ADC (anti-alias).
+- Filtrado digital ligero (media movil corta o IIR 1er orden).
+
+Metricas utiles
+- Fmax.
+- Tiempo a pico.
+- Impulso (integral).
+- Duracion sobre umbral.
+- RFD (dF/dt max).
+
+Ejemplo de impulso discreto
+
+```c
+float ComputeImpulse(const float *f, int n, float dt)
+{
+	float s = 0.0f;
+	for (int i = 0; i < n; ++i) {
+		s += f[i] * dt;
+	}
+	return s; // N*s
+}
+```
+
+==================================================
+16) Conversion ADC -> voltaje -> fuerza
+==================================================
+
+Paso 1: cuenta ADC a voltaje
+- Vadc = (ADC_counts / ADC_fullscale_counts) * Vref
+
+Paso 2: voltaje a fuerza
+- F = GainCal * (Vadc - Voffset)
+
+Donde GainCal y Voffset salen de calibracion real.
+
+Nunca asumas linealidad perfecta sin calibrar.
+
+==================================================
+17) Calibracion minima que debes hacer
+==================================================
+
+1) Tara sin carga (offset).
+2) 2 o mas puntos con cargas conocidas.
+3) Ajuste lineal (o polinomico si hace falta).
+4) Validacion con cargas intermedias.
+5) Guardar coeficientes en flash/EEPROM emulada.
+
+Ejemplo simple lineal
+
+```c
+typedef struct {
+	float gain;
+	float offset;
+} cal_t;
+
+float Force_From_Adc(float adc_to_volt, cal_t c)
+{
+	return c.gain * (adc_to_volt - c.offset);
+}
+```
+
+==================================================
+18) Debug real: como no perder dias
+==================================================
+
+Checklist de debug
+- SWD siempre habilitado.
+- UART debug a 115200 minimo.
+- Mide un pin "toggle" con osciloscopio para validar periodos.
+- Verifica reloj real del sistema (no asumir).
+- Verifica que ISR realmente entra con contador.
+
+Patron util de timing
+
+```c
+// En callback de timer/ADC
+HAL_GPIO_TogglePin(DEBUG_GPIO_Port, DEBUG_Pin);
+```
+
+Si ese pin no tiene periodo estable, tu sistema no esta determinista.
+
+==================================================
+19) Tips and tricks (practicos)
+==================================================
+
+1) Primero haz que funcione, luego optimiza.
+2) No mezcles 10 perifericos nuevos a la vez.
+3) Timer + ADC + DMA es tu "camino feliz" para adquisicion.
+4) No dibujes la pantalla dentro de ISR.
+5) Usa buffers dobles (double buffering) si la UI bloquea.
+6) Documenta tu clock tree y tus formulas al lado del codigo.
+7) Separa capas: drivers, adquisicion, procesado, UI.
+8) Haz pruebas con senal sintetica antes de golpear hardware real.
+
+==================================================
+20) Errores tipicos de principiantes en STM32G4
+==================================================
+
+- Confiar en ADS lentos para impactos rapidos.
+- No entender APB timer clocks (x1/x2 segun configuracion).
+- Sobrecargar interrupciones con logica pesada.
+- Ignorar ruido de alimentacion analogica.
+- No hacer calibracion seria y aun asi creer el valor absoluto.
+
+==================================================
+21) Mini hoja de formulas utiles
+==================================================
+
+1) Timer
+- f_timer_cnt = f_timer_clk / (PSC + 1)
+- f_update = f_timer_cnt / (ARR + 1)
+- T_update = 1 / f_update
+
+2) Muestreo
+- fs = muestras_por_segundo
+- dt = 1 / fs
+- N = fs * ventana_tiempo
+
+3) Impulso
+- J = Integral(F(t)dt) ~= Sum(F[i] * dt)
+
+4) RFD aproximada
+- RFD[i] = (F[i] - F[i-1]) / dt
+
+==================================================
+22) Roadmap de aprendizaje recomendado (4 etapas)
+==================================================
+
+Etapa 1 (1-2 dias)
+- GPIO, UART, reloj, interrupciones basicas.
+
+Etapa 2 (2-4 dias)
+- Timers: base time + PWM + input capture.
+
+Etapa 3 (2-5 dias)
+- ADC con timer trigger y DMA, guardando buffer.
+
+Etapa 4 (3-7 dias)
+- Integracion completa: estado + metrica + pantalla.
+
+==================================================
+23) Ejemplo de valores para tu caso de impacto
+==================================================
+
+Suposicion
+- Quieres ventana de 80 ms.
+- Quieres fs = 5 kSPS.
+
+Calculo
+- N = 5000 * 0.08 = 400 muestras.
+
+Timer de trigger ADC
+- f_update = 5 kHz.
+- Con f_timer_clk = 170 MHz:
+  - PSC = 169 -> 1 MHz
+  - ARR = 199 -> 1 MHz/200 = 5 kHz
+
+Esto te da 400 muestras en 80 ms exactos.
+
+==================================================
+24) Conclusion practica
+==================================================
+
+Si dominas estos 5 puntos, dominas gran parte del micro para tu proyecto:
+1) Clock tree.
+2) Pin multiplexing (AF).
+3) Timer formulas y configuracion.
+4) ADC trigger por timer + DMA.
+5) Estado de aplicacion limpio con ISR ligeras.
+
+Con eso, tus prompts seran mucho mas potentes y tus decisiones de hardware/firmware mucho mas correctas.
+

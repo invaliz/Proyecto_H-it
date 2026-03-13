@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>tituloPagina — Plantilla</title>
+  <style>
+    /* VSCode Dark+ inspired palette with small esthetic tweaks */
+    :root{
+      --bg:#1e1e1e;
+      --panel:#242526;
+      --card:#2f3033;
+      --muted:#9a9a9a;
+      --fg:#dcdcdc;
+      --accent:#4fc3f7;
+      --accent-2:#0ea5c9;
+      --border:#333333;
+      --note-yellow:#d7ba7d;
+      --note-green:#6fb06f;
+      --note-red:#d16969;
+      --glass: rgba(255,255,255,0.02);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Segoe UI, Roboto, Arial, sans-serif;background:var(--bg);color:var(--fg)}
+    .app{display:grid;grid-template-rows:64px 1fr 36px;grid-template-columns:260px 1fr;grid-template-areas:"header header" "sidebar main" "footer footer";min-height:100vh;gap:12px}
+
+    header{grid-area:header;display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(180deg,var(--panel),var(--card));border-bottom:1px solid var(--border)}
+    header h1{font-size:1rem;margin:0;color:var(--accent)}
+    header .search{margin-left:auto}
+    header input[type=search]{padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--glass);color:var(--fg)}
+
+    nav.sidebar{grid-area:sidebar;padding:12px;overflow:auto;border-right:1px solid var(--border);background:var(--panel);display:flex;flex-direction:column}
+    .sidebar .searchBar{margin-bottom:8px}
+    .sidebar input[type=text]{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:#1b1b1b;color:var(--fg)}
+    .toc{list-style:none;padding:0;margin:6px 0;flex:0 0 auto}
+    .toc li{padding:8px;border-radius:6px;color:var(--muted);cursor:pointer}
+    .toc li:hover{background:#2a2d2e;color:var(--fg)}
+    .toc li.active{background:linear-gradient(90deg, rgba(79,195,247,0.12), transparent);color:var(--fg);border-left:3px solid var(--accent);padding-left:6px}
+
+    /* pequeño recuadro informativo en la parte inferior de la barra lateral */
+    .sidebar-info{margin-top:12px;padding:10px;border-radius:8px;background:linear-gradient(180deg,#262626,#222);border:1px solid var(--border);color:var(--muted);font-size:0.95rem}
+    .sidebar-info .title{color:var(--accent);font-weight:700;margin-bottom:6px}
+    .sidebar-info .text{min-height:48px}
+
+    main{grid-area:main;padding:18px;overflow:auto}
+    .section{margin-bottom:18px;padding:12px;border-radius:8px;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,0.35);border:1px solid var(--border)}
+    .section h2{margin-top:0;color:var(--accent-2)}
+
+    .cards{display:flex;flex-wrap:wrap;gap:12px}
+    .card{background:linear-gradient(180deg,#2b2b2d,#272729);padding:12px;border-radius:8px;width:220px;border:1px solid var(--border);color:var(--fg)}
+    .card h3{margin:0 0 6px 0;font-size:0.95rem;color:var(--fg)}
+    .muted{color:var(--muted);font-size:0.95rem}
+
+    /* High-contrast text for notes/cards: default thin readable font, color set per-note for contrast */
+    .note-contrast{color:inherit;text-shadow:0 1px 0 rgba(0,0,0,0.15);font-family:Inter, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;font-size:0.98rem;line-height:1.25;font-weight:400}
+
+    /* Nueva variante 1: tarjeta con borde brillante y icono simulado */
+    .card.variant-1{background:linear-gradient(180deg,#2b2b30,#252528);border:1px solid rgba(79,195,247,0.15);box-shadow:0 8px 20px rgba(14,165,201,0.04)}
+    .card.variant-1 .label{display:inline-block;padding:6px 8px;border-radius:6px;background:rgba(79,195,247,0.08);color:var(--accent);font-weight:700}
+
+    /* Nueva variante 2: tarjeta minimal con sombra interior */
+    .card.variant-2{background:linear-gradient(180deg,#323235,#29292b);border:1px solid rgba(255,255,255,0.03);box-shadow:inset 0 -6px 20px rgba(0,0,0,0.4)}
+    .card.variant-2 .label{font-style:italic;color:var(--muted)}
+
+    /* Tarjetas que aceptan color de nota: usar estilo 'variant-2' (sombra interior) + gradiente de color */
+    .color-card{padding:14px;border-radius:10px;width:240px;color:inherit;font-weight:400;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,0.03);box-shadow:inset 0 -6px 20px rgba(0,0,0,0.4)}
+    .color-card.small{width:180px}
+    .color-card .accent{width:10px;height:40px;border-radius:6px;flex:0 0 10px}
+    .color-card.soft{background:transparent}
+    .color-card.bordered{background:transparent;border:1px dashed rgba(255,255,255,0.04);box-shadow:none}
+    .color-card.tall{padding:18px;border-radius:12px}
+
+    /* color variants using note colors but manteniendo la estética variant-2 */
+    .color-card.yellow{background:linear-gradient(180deg, rgba(215,186,125,0.16), rgba(215,186,125,0.06));border:1px solid var(--note-yellow)}
+    .color-card.green{background:linear-gradient(180deg, rgba(111,176,111,0.16), rgba(111,176,111,0.06));border:1px solid var(--note-green)}
+    .color-card.red{background:linear-gradient(180deg, rgba(209,105,105,0.16), rgba(209,105,105,0.06));border:1px solid var(--note-red)}
+    /* set text color per background for good contrast */
+    .color-card.yellow.note-contrast{color:#0b0b0b}
+    .color-card.green.note-contrast{color:#ffffff}
+    .color-card.red.note-contrast{color:#ffffff}
+
+    footer{grid-area:footer;background:var(--panel);display:flex;align-items:center;padding:8px 14px;border-top:1px solid var(--border);color:var(--muted);position:relative}
+
+    /* Smooth scroll target offset helper */
+    :target{scroll-margin-top:84px}
+
+    /* responsive */
+    @media (max-width:900px){
+      .app{grid-template-columns:1fr;grid-template-rows:64px auto 1fr 36px;grid-template-areas:"header" "main" "sidebar" "footer"}
+      nav.sidebar{order:3;border-right:0;border-top:1px solid var(--border)}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>tituloPagina</h1>
+      <div class="search">
+        <input type="search" placeholder="Buscar apartados... (header search demostrativo)">
+      </div>
+    </header>
+
+    <nav class="sidebar" aria-label="Barra lateral">
+      <div class="searchBar">
+        <input id="sideSearch2" type="text" placeholder="Buscar en la barra lateral...">
+      </div>
+      <ul id="toc2" class="toc">
+        <li data-target="apartado1">apartado1</li>
+        <li data-target="apartado2">apartado2</li>
+        <li data-target="apartado3">apartado3</li>
+        <li data-target="apartado4">apartado4</li>
+        <li data-target="apartado5">apartado5</li>
+        <li data-target="apartado6">apartado6</li>
+      </ul>
+
+      <div style="flex:1 1 auto"></div>
+      <div class="sidebar-info" aria-label="Información lateral">
+        <div class="title">Información</div>
+        <div class="text">Caja para texto informativo. Escribe aquí notas o instrucciones cortas.</div>
+      </div>
+    </nav>
+
+    <main id="main2">
+      <section id="apartado1" class="section">
+        <h2>apartado1</h2>
+        <p class="muted">Zona principal donde irá el contenido. Plantilla con variantes de tarjetas para elegir.</p>
+      </section>
+
+      <section id="apartado2" class="section">
+        <h2>apartado2</h2>
+        <div class="cards">
+          <div class="card variant-2"><h3>Variante 2</h3><div class="label">card_variant_2</div></div>
+        </div>
+      </section>
+
+      <section id="apartado3" class="section">
+        <h2>apartado3</h2>
+        <p class="muted">Tarjetas que aceptan colores de nota. Se muestran tres estilos distintos cada una con sus variantes de color.</p>
+        <div style="height:8px"></div>
+        <div class="cards">
+          <div class="color-card tall yellow note-contrast">targeta_color_1 (tall - yellow)</div>
+          <div class="color-card bordered green note-contrast">targeta_color_2 (bordered - green)</div>
+          <div class="color-card soft red note-contrast">targeta_color_3 (soft - red)</div>
+
+          <div class="color-card small yellow note-contrast">targeta_color_1 (small - yellow)</div>
+          <div class="color-card small green note-contrast">targeta_color_2 (small - green)</div>
+          <div class="color-card small red note-contrast">targeta_color_3 (small - red)</div>
+        </div>
+      </section>
+
+      <section id="apartado4" class="section">
+        <h2>apartado4</h2>
+        <p class="muted">Sección de ejemplo con tarjetas adicionales y textos genéricos.</p>
+        <div class="cards">
+          <div class="card variant-2"><h3>Opción</h3><div class="label">card_variant_2</div></div>
+        </div>
+      </section>
+
+      <section id="apartado5" class="section">
+        <h2>apartado5</h2>
+        <p class="muted">Plantilla pensada para ser genérica y reutilizable.</p>
+      </section>
+
+      <section id="apartado6" class="section">
+        <h2>apartado6</h2>
+        <p class="muted">Ejemplos conceptuales y tarjetas de colores para marcar información importante.</p>
+      </section>
+
+    </main>
+
+    <footer>TextoFooter</footer>
+  </div>
+
+  <script>
+    // Sidebar search and navigation (adaptado)
+    const toc = document.getElementById('toc2');
+    const items = Array.from(toc.querySelectorAll('li'));
+    const sideSearch = document.getElementById('sideSearch2');
+
+    sideSearch.addEventListener('input', ()=>{
+      const q = sideSearch.value.toLowerCase();
+      items.forEach(li=>{
+        const text = li.textContent.toLowerCase();
+        li.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+
+    // click to scroll to section
+    items.forEach(li=>{
+      li.addEventListener('click', ()=>{
+        const targetId = li.dataset.target;
+        const target = document.getElementById(targetId);
+        if (target){
+          target.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+      });
+    });
+
+    // highlight active TOC item on scroll
+    const sections = Array.from(document.querySelectorAll('main .section'));
+    function onScroll(){
+      const offset = 100; // threshold
+      let current = sections[0];
+      for (const sec of sections){
+        const rect = sec.getBoundingClientRect();
+        if (rect.top - offset <= 0){ current = sec; }
+      }
+      items.forEach(li=> li.classList.toggle('active', li.dataset.target === current.id));
+    }
+    document.getElementById('main2').addEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll);
+    onScroll();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ELECTRONICA - Manual Vivo Offline</title>
+  <style>
+    :root {
+      --bg1: #1e1e1e;
+      --bg2: #252526;
+      --panel: #252526;
+      --panel2: #2d2d30;
+      --ink: #d4d4d4;
+      --muted: #969696;
+      --line: #454545;
+      --accent: #569cd6;
+      --accent2: #264f78;
+      --ok: #4ec9b0;
+      --warn: #dcdcaa;
+      --danger: #f44747;
+      --code: #1e1e1e;
+      --orange: #ce9178;
+      --cyan: #9cdcfe;
+      --purple: #c586c0;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: auto; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg1);
+      font-family: "Consolas", "Segoe UI", "Verdana", sans-serif;
+      font-size: 17px;
+      line-height: 1.62;
+      overscroll-behavior-y: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: #333333;
+      padding: 16px;
+    }
+
+    .brand {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #2d2d30;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.14rem;
+      letter-spacing: 0.3px;
+      color: #d4d4d4;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      font-size: 0.91rem;
+      color: var(--muted);
+    }
+
+    .quick {
+      border: 1px solid var(--line);
+      background: #2d2d30;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .quick label { display: block; margin-bottom: 6px; font-weight: 600; }
+
+    .quick input {
+      width: 100%;
+      border: 1px solid #454545;
+      border-radius: 8px;
+      padding: 7px 8px;
+      font: inherit;
+      background: #1e1e1e;
+      color: var(--ink);
+    }
+
+    nav a {
+      display: block;
+      margin: 5px 0;
+      border: 1px solid #454545;
+      border-radius: 9px;
+      background: #2d2d30;
+      color: #d4d4d4;
+      text-decoration: none;
+      padding: 8px 10px;
+      font-size: 0.93rem;
+      transition: background 140ms ease, border-color 140ms ease, transform 120ms ease, box-shadow 140ms ease;
+    }
+
+    nav a:hover, nav a:focus {
+      outline: none;
+      transform: translateX(2px);
+      border-color: #569cd6;
+      background: #264f78;
+      box-shadow: 0 2px 10px rgba(86, 156, 214, 0.30);
+    }
+
+    nav a.active {
+      border: 2px solid #569cd6;
+      background: #264f78;
+      color: #d4d4d4;
+      font-weight: 700;
+      outline: none;
+      transform: none;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 8px rgba(86, 156, 214, 0.4);
+    }
+
+    nav a.active:hover,
+    nav a.active:focus {
+      transform: none;
+      border-color: #569cd6;
+      background: #264f78;
+      box-shadow: 0 0 8px rgba(86, 156, 214, 0.4);
+    }
+
+    .legend {
+      margin-top: 12px;
+      border-left: 4px solid var(--accent);
+      background: #2d2d30;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 0.9rem;
+    }
+
+    main {
+      width: min(100%, 1600px);
+      margin: 0 auto;
+      padding: 18px 20px 38px;
+    }
+
+    section {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      border-bottom: 1px dashed #454545;
+      color: #569cd6;
+      letter-spacing: 0.22px;
+      padding-bottom: 6px;
+      scroll-margin-top: 16px;
+      font-size: 1.19rem;
+    }
+
+    h3 {
+      margin: 12px 0 7px;
+      color: #9cdcfe;
+      font-size: 1.04rem;
+    }
+
+    p, li, td, th, label, .result, .note, .legend, .quick, .footer {
+      color: var(--ink);
+    }
+
+    p { margin: 8px 0; }
+    ul, ol { margin: 8px 0; padding-left: 19px; }
+
+    .chips { margin: 8px 0; }
+
+    .chip {
+      display: inline-block;
+      border: 1px solid #454545;
+      border-radius: 999px;
+      background: #2d2d30;
+      padding: 2px 9px;
+      margin: 2px 4px 2px 0;
+      font-size: 0.82rem;
+      color: #9cdcfe;
+    }
+
+    .note {
+      margin: 10px 0;
+      border: 1px solid #454545;
+      border-radius: 10px;
+      background: #2d2d30;
+      padding: 10px;
+      font-size: 0.92rem;
+    }
+
+    .dep-chain {
+      margin-top: 8px;
+      border-left: 4px solid var(--accent);
+      background: #2d2d30;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.89rem;
+    }
+
+    .ok { border-left: 4px solid var(--ok); }
+    .warn { border-left: 4px solid var(--warn); }
+    .danger { border-left: 4px solid var(--danger); }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 9px 0;
+      font-size: 0.95rem;
+      background: #252526;
+    }
+
+    th, td {
+      border: 1px solid #454545;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    td { background: #252526; }
+    th { background: #2d2d30; color: #dcdcaa; }
+
+    code, pre { font-family: "Consolas", "Lucida Console", monospace; }
+
+    pre {
+      margin: 9px 0;
+      background: var(--code);
+      color: #d4d4d4;
+      border: 1px solid #454545;
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      font-size: 0.90rem;
+      line-height: 1.53;
+    }
+
+    .formula {
+      margin: 9px 0;
+      border: 1px dashed #454545;
+      border-radius: 8px;
+      background: #2d2d30;
+      padding: 8px;
+      font-family: "Consolas", "Lucida Console", monospace;
+      overflow: auto;
+      color: #ce9178;
+    }
+
+    .diagram {
+      border: 1px solid #454545;
+      border-radius: 10px;
+      background: #1e1e1e;
+      padding: 8px;
+      overflow: auto;
+    }
+
+    .calc {
+      border: 1px solid #454545;
+      border-radius: 12px;
+      background: var(--panel2);
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    .calc .row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .calc label {
+      display: block;
+      font-size: 0.9rem;
+      color: #d4d4d4;
+      margin-bottom: 4px;
+    }
+
+    .calc input, .calc select {
+      width: 100%;
+      border: 1px solid #454545;
+      border-radius: 8px;
+      background: #1e1e1e;
+      padding: 6px 7px;
+      font: inherit;
+      color: var(--ink);
+    }
+
+    .btn {
+      display: inline-block;
+      border: 1px solid #569cd6;
+      border-radius: 8px;
+      background: #264f78;
+      color: #d4d4d4;
+      font-weight: 700;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn:hover { filter: brightness(1.15); }
+
+    .result {
+      margin-top: 8px;
+      border: 1px solid #454545;
+      border-radius: 8px;
+      background: #1e1e1e;
+      padding: 8px;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      color: #4ec9b0;
+    }
+
+    .checklist label {
+      display: block;
+      border: 1px solid #454545;
+      border-radius: 8px;
+      background: #2d2d30;
+      padding: 8px;
+      margin: 6px 0;
+      cursor: pointer;
+    }
+
+    .checklist input { margin-right: 7px; }
+
+    .kbd {
+      display: inline-block;
+      border: 1px solid #454545;
+      border-radius: 6px;
+      background: #2d2d30;
+      padding: 1px 6px;
+      font-family: "Consolas", "Lucida Console", monospace;
+      font-size: 0.82rem;
+      color: #dcdcaa;
+    }
+
+    a { color: #569cd6; }
+    a:hover { color: #9cdcfe; }
+
+    .footer {
+      color: var(--muted);
+      font-size: 0.86rem;
+      padding: 4px;
+    }
+
+    .hidden-by-filter { display: none !important; }
+
+    abbr[data-tip] {
+      text-decoration: underline dotted #569cd6;
+      text-underline-offset: 3px;
+      cursor: help;
+      position: relative;
+      color: #9cdcfe;
+      font-style: normal;
+    }
+
+    abbr[data-tip]::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2d2d30;
+      color: #d4d4d4;
+      border: 1px solid #569cd6;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 0.80rem;
+      font-family: "Consolas", "Segoe UI", sans-serif;
+      font-style: normal;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 160ms ease;
+      z-index: 999;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.55);
+      max-width: 360px;
+      white-space: normal;
+      text-align: center;
+      width: max-content;
+    }
+
+    abbr[data-tip]:hover::after,
+    abbr[data-tip]:focus::after { opacity: 1; }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+      main { padding: 12px; }
+      .calc .row { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+      .grid3 { grid-template-columns: repeat(2, minmax(200px, 1fr)); }
+    }
+
+    @media (max-width: 700px) {
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .calc .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <h1>Manual Vivo de Electronica</h1>
+        <p>Version offline, modular y escalable. Enfocado a proyectos con microcontroladores, sensores y sistemas embebidos.</p>
+      </div>
+
+      <div class="quick">
+        <label for="navFilter">Filtrar apartados</label>
+        <input id="navFilter" type="text" placeholder="Ej: filtros, adc, opamp, ruido..." />
+      </div>
+
+      <nav id="sideNav">
+        <a href="#sec-00">00. Uso del manual y fuentes</a>
+        <a href="#sec-00b">00B. Siglas y vocabulario</a>
+        <a href="#sec-00c">00C. Ruta y dependencias</a>
+        <a href="#sec-01">01. Seguridad electrica minima</a>
+        <a href="#sec-02">02. Voltajes I (base)</a>
+        <a href="#sec-03">03. Corriente I (base)</a>
+        <a href="#sec-04">04. Resistencia y Ley de Ohm</a>
+        <a href="#sec-05">05. Potencia, energia y calor</a>
+        <a href="#sec-06">06. Divisores y referencias</a>
+        <a href="#sec-07">07. Condensadores y desacoplo</a>
+        <a href="#sec-08">08. Filtros RC paso bajo/alto</a>
+        <a href="#sec-09">09. Inductores y convertidores</a>
+        <a href="#sec-10">10. Diodos, LED y protecciones</a>
+        <a href="#sec-11">11. Transistores y MOSFET</a>
+        <a href="#sec-12">12. OPAMP y acondicionamiento</a>
+        <a href="#sec-13">13. Senales analogicas y digitales</a>
+        <a href="#sec-14">14. ADC, muestreo y aliasing</a>
+        <a href="#sec-15">15. Voltajes II (interfaz 3.3 V)</a>
+        <a href="#sec-16">16. Corriente II (cargas reales)</a>
+        <a href="#sec-17">17. Sensores: lectura robusta</a>
+        <a href="#sec-18">18. Medicion: DMM y osciloscopio</a>
+        <a href="#sec-19">19. Ruido, EMI y masa</a>
+        <a href="#sec-20">20. PCB para embebidos</a>
+        <a href="#sec-21">21. Recetas de circuitos utiles</a>
+        <a href="#sec-22">22. Flujo de diseno practico</a>
+        <a href="#sec-23">23. Calculadoras offline</a>
+        <a href="#sec-24">24. Checklist por nivel</a>
+        <a href="#sec-25">25. Errores clasicos y fix</a>
+        <a href="#sec-26">26. Roadmap tecnico</a>
+      </nav>
+
+      <div class="legend">
+        Base tecnica recomendada: datasheet de cada componente, notas de aplicacion de ST/TI/ADI/NXP, IEC 61010 (seguridad de medida), y buenas practicas de instrumentacion.
+      </div>
+    </aside>
+
+    <main id="contentRoot">
+      <section id="sec-00" data-title="uso fuentes oficiales fiabilidad" data-keys="manual,vivo,offline,referencias,datasheet,appnote,iec,nist,metodologia">
+        <h2>00) Uso del manual y fuentes fiables</h2>
+        <p>Este manual sirve para pasar de cero a un nivel profesional aplicable a microcontroladores y sensores. Es un documento vivo offline: puedes estudiar, calcular, revisar checklist y construir criterio tecnico sin conexion.</p>
+
+        <h3>Regla central</h3>
+        <div class="note warn">
+          Si un valor es critico (voltaje maximo, corriente por pin, temperatura, ruido, tolerancia), la ultima verdad siempre es el datasheet vigente del componente exacto que estas usando.
+        </div>
+
+        <h3>Fuentes recomendadas</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Fuente</th>
+              <th>Para que sirve</th>
+              <th>Referencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Datasheet del MCU/sensor/IC</td>
+              <td>Limites absolutos, condiciones recomendadas, curvas reales</td>
+              <td>Portal del fabricante (ST, TI, ADI, NXP, etc.)</td>
+            </tr>
+            <tr>
+              <td>Reference Manual (MCU)</td>
+              <td>Registros y funcionamiento de perifericos</td>
+              <td>RM oficial del fabricante</td>
+            </tr>
+            <tr>
+              <td>Application Notes</td>
+              <td>Topologias validadas y tips de diseno</td>
+              <td>AN de ST, TI Precision Labs, ADI MT series</td>
+            </tr>
+            <tr>
+              <td>Horowitz & Hill</td>
+              <td>Fundamentos de diseno de circuitos</td>
+              <td>The Art of Electronics (3rd ed.)</td>
+            </tr>
+            <tr>
+              <td>Sedra/Smith</td>
+              <td>Analisis sistematico de circuitos y opamps</td>
+              <td>Microelectronic Circuits</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-00b" data-title="siglas glosario rapido" data-keys="acronimos,vocabulario,mcu,adc,pwm,emi,esd,opamp">
+        <h2>00B) Siglas y vocabulario base</h2>
+        <p>Las siglas aparecen en todo el manual. Si pasas el raton sobre una sigla, veras su descripcion breve.</p>
+
+        <table>
+          <thead>
+            <tr><th>Sigla</th><th>Significado</th><th>Uso tipico</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>MCU</td><td>Microcontroller Unit</td><td>Control principal del sistema</td></tr>
+            <tr><td>GPIO</td><td>General Purpose Input/Output</td><td>Entradas y salidas digitales</td></tr>
+            <tr><td>ADC</td><td>Analog to Digital Converter</td><td>Lectura de sensores analogicos</td></tr>
+            <tr><td>PWM</td><td>Pulse Width Modulation</td><td>Control de potencia/actuadores</td></tr>
+            <tr><td>I2C</td><td>Inter-Integrated Circuit</td><td>Bus para sensores</td></tr>
+            <tr><td>SPI</td><td>Serial Peripheral Interface</td><td>Bus rapido para ADC, displays, memorias</td></tr>
+            <tr><td>UART</td><td>Universal Asynchronous Receiver-Transmitter</td><td>Debug y telemetria</td></tr>
+            <tr><td>ESD</td><td>Electrostatic Discharge</td><td>Proteccion de entradas y conectores</td></tr>
+            <tr><td>EMI</td><td>Electromagnetic Interference</td><td>Ruido acoplado por cableado/PCB</td></tr>
+            <tr><td>OPAMP</td><td>Operational Amplifier</td><td>Acondicionamiento analogico</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-00c" data-title="ruta dependencias entre apartados" data-keys="orden,progresion,prerrequisitos,flujo,dependencias,estudio">
+        <h2>00C) Ruta y dependencias entre apartados</h2>
+        <p>Para que ningun paso quede cojo, cada bloque usa conocimientos del anterior. Si un apartado te cuesta, vuelve al prerrequisito indicado y repite con calculadora y medicion.</p>
+
+        <table>
+          <thead>
+            <tr><th>Bloque</th><th>Se apoya en</th><th>Resultado esperado</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>01-05</td><td>00 + 00B</td><td>Entender V, I, R y potencia sin ambiguedades</td></tr>
+            <tr><td>06-10</td><td>02-05</td><td>Interfaz segura con 3.3 V, filtros y protecciones</td></tr>
+            <tr><td>11-14</td><td>06-10</td><td>Acondicionar y muestrear senal con criterio</td></tr>
+            <tr><td>15-18</td><td>11-14</td><td>Llevar teoria a entradas/salidas y medicion real</td></tr>
+            <tr><td>19-22</td><td>01-18</td><td>Diseno robusto: ruido, PCB y flujo de validacion</td></tr>
+            <tr><td>23-26</td><td>Todo lo anterior</td><td>Calcular, autoevaluar y cerrar aprendizaje aplicable</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-01" data-title="seguridad electrica" data-keys="seguridad,proteccion,equipo,medidas,riesgo,masa,fuente">
+        <h2>01) Seguridad electrica minima antes de empezar</h2>
+        <ul>
+          <li>Trabaja en bajo voltaje (<strong>3.3 V, 5 V, 12 V</strong>) hasta dominar fundamentos.</li>
+          <li>Fuente de laboratorio con limitacion de corriente cuando sea posible.</li>
+          <li>Nunca conectes tierra de osciloscopio a nodos no referenciados correctamente.</li>
+          <li>Descarga capacitores antes de manipular.</li>
+          <li>Para red electrica o alto voltaje, usa aislamiento y normativa especifica.</li>
+        </ul>
+
+        <div class="note danger">Este manual esta orientado a electronica de baja tension para embebidos. No sustituye formacion de seguridad industrial.</div>
+      </section>
+
+      <section id="sec-02" data-title="voltajes i" data-keys="voltaje,tension,referencia,nodo,malla,potencial">
+        <h2>02) Voltajes I (base de todo)</h2>
+        <p>El voltaje es diferencia de potencial entre dos puntos. Siempre se mide respecto a una referencia (normalmente <strong>GND</strong>).</p>
+
+        <div class="formula">
+          Vab = Va - Vb
+          <br />V = I * R
+        </div>
+
+        <h3>En sistemas con MCU</h3>
+        <ul>
+          <li>Un pin digital de 3.3 V solo interpreta correctamente tensiones dentro de su rango de entrada.</li>
+          <li>El rango exacto de HIGH y LOW depende del datasheet (VIL/VIH).</li>
+          <li>Superar el maximo absoluto de pin puede dañar de forma permanente.</li>
+        </ul>
+      </section>
+
+      <section id="sec-03" data-title="corriente i" data-keys="corriente,intensidad,carga,consumo,malla,kcl">
+        <h2>03) Corriente I (base de diseno real)</h2>
+        <p>La corriente es flujo de carga. No "entra siempre 3.3 V": lo que fluye es corriente segun la impedancia de la red.</p>
+        <div class="formula">
+          I = V / R
+        </div>
+
+        <table>
+          <thead><tr><th>Concepto</th><th>Aplicacion</th><th>Error comun</th></tr></thead>
+          <tbody>
+            <tr><td>Corriente por pin</td><td>Limitar LEDs y cargas</td><td>Conectar LED directo sin resistencia</td></tr>
+            <tr><td>Corriente total MCU</td><td>Dimensionar fuente</td><td>Sumar mal picos de arranque</td></tr>
+            <tr><td>Corriente de fuga</td><td>Bajo consumo y medicion</td><td>Ignorar pull-ups fuertes</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-04" data-title="resistencias ohm" data-keys="resistencia,ohm,series,paralelo,tolerancia,potencia">
+        <h2>04) Resistencia y Ley de Ohm</h2>
+        <h3>Reglas rapidas</h3>
+        <ul>
+          <li>En serie: <code>Rtotal = R1 + R2 + ...</code></li>
+          <li>En paralelo: <code>1/Rtotal = 1/R1 + 1/R2 + ...</code></li>
+          <li>Tolerancia importa: 1% no es igual que 5% en mediciones finas.</li>
+        </ul>
+
+        <div class="note ok">Para LEDs con MCU, empieza con 330 ohm a 3.3 V como valor seguro de prototipo y ajusta por calculo de corriente/luminosidad.</div>
+      </section>
+
+      <section id="sec-05" data-title="potencia energia calor" data-keys="potencia,watt,temperatura,disipacion,eficiencia">
+        <h2>05) Potencia, energia y calor</h2>
+        <div class="formula">
+          P = V * I = I^2 * R = V^2 / R
+          <br />E = P * t
+        </div>
+        <p>Si no estimas potencia, quemas componentes. Usa margen termico: operar idealmente por debajo del 50-60% del rating continuo.</p>
+      </section>
+
+      <section id="sec-06" data-title="divisores referencias" data-keys="divisor,resistivo,referencia,offset,bias,pullup,pulldown">
+        <h2>06) Divisores, bias y referencias</h2>
+        <h3>Divisor resistivo</h3>
+        <div class="formula">
+          Vout = Vin * (R2 / (R1 + R2))
+        </div>
+        <p>Sirve para bajar tension (ej: 5 V a ~3.3 V) cuando la carga de salida es de alta impedancia.</p>
+
+        <div class="note warn">Si la entrada del pin/sensor consume corriente significativa, el divisor ideal falla. En ese caso usa buffer (OPAMP) o baja impedancia del divisor.</div>
+      </section>
+
+      <section id="sec-07" data-title="condensadores desacoplo" data-keys="capacitor,ceramico,electrolitico,desacoplo,ripple,transitorio">
+        <h2>07) Condensadores y desacoplo</h2>
+        <table>
+          <thead><tr><th>Tipo</th><th>Uso</th><th>Valor tipico</th></tr></thead>
+          <tbody>
+            <tr><td>100 nF ceramico</td><td>Desacoplo local en VDD de IC</td><td>Uno por pin de alimentacion</td></tr>
+            <tr><td>1 uF - 10 uF</td><td>Soporte de transitorios medios</td><td>Cerca de grupo de IC</td></tr>
+            <tr><td>47 uF - 220 uF</td><td>Reserva de energia en linea</td><td>Entrada de placa o rail principal</td></tr>
+          </tbody>
+        </table>
+        <p>Regla de PCB: el condensador de desacoplo debe estar fisicamente cerca del pin de alimentacion del IC.</p>
+      </section>
+
+      <section id="sec-08" data-title="filtros rc" data-keys="paso bajo,paso alto,rc,fc,bode,ruido,anti alias">
+        <h2>08) Filtros RC paso bajo y paso alto</h2>
+        <h3>Frecuencia de corte</h3>
+        <div class="formula">
+          fc = 1 / (2 * pi * R * C)
+        </div>
+        <ul>
+          <li>Paso bajo: deja pasar bajas frecuencias y atenuna ruido alto.</li>
+          <li>Paso alto: elimina offset DC y deja cambios rapidos.</li>
+        </ul>
+
+        <div class="diagram"><pre>
+Sensor analogico --R--+--> ADC
+                      |
+                      C
+                      |
+                     GND
+
+Topologia RC paso bajo en entrada ADC
+</pre></div>
+      </section>
+
+      <section id="sec-09" data-title="inductores convertidores" data-keys="inductor,buck,boost,dc-dc,switched,power">
+        <h2>09) Inductores y convertidores de potencia</h2>
+        <p>Si usas buck/boost para alimentar MCU y sensores, la disposicion de inductor, diodo/MOSFET y capacitores define el ruido final.</p>
+        <div class="note warn">No mezcles trazas de switching con entradas ADC sensibles sin separacion de masa y routing cuidadoso.</div>
+      </section>
+
+      <section id="sec-10" data-title="diodos led protecciones" data-keys="diodo,led,zener,schottky,clamp,tvs,proteccion,polaridad">
+        <h2>10) Diodos, LEDs y proteccion de entradas</h2>
+        <h3>LED desde pin de MCU</h3>
+        <div class="formula">
+          Rled = (Vpin - Vf_led) / Iled
+        </div>
+
+        <h3>Protecciones utiles</h3>
+        <ul>
+          <li>Resistencia en serie para limitar corriente de entrada.</li>
+          <li>Diodos Schottky de clamp a 3.3 V/GND (segun diseno).</li>
+          <li>TVS en conectores externos expuestos a <strong>ESD</strong>.</li>
+          <li>Zener en lineas donde convenga recorte de sobrevoltaje.</li>
+        </ul>
+      </section>
+
+      <section id="sec-11" data-title="transistores mosfet" data-keys="bjt,mosfet,conmutacion,driver,pull-down,gate">
+        <h2>11) Transistores y MOSFET (control de cargas)</h2>
+        <p>Un pin de MCU no debe alimentar cargas grandes directamente. Usa transistor como etapa de potencia.</p>
+
+        <div class="grid2">
+          <div class="note">
+            <h3>BJT</h3>
+            <p>Simple para cargas pequenas. Requiere resistencia de base y saturacion correcta.</p>
+          </div>
+          <div class="note">
+            <h3>MOSFET logico</h3>
+            <p>Ideal para conmutar corriente mayor. Revisa Rds(on) a 2.5/3.3 V de gate.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-12" data-title="opamp" data-keys="opamp,buffer,ganancia,offset,impedancia,filtrado,instrumentacion">
+        <h2>12) OPAMP y acondicionamiento de senal</h2>
+        <table>
+          <thead><tr><th>Topologia</th><th>Uso</th><th>Punto clave</th></tr></thead>
+          <tbody>
+            <tr><td>Buffer (seguidor)</td><td>Aislar sensor de ADC</td><td>Alta Zin, baja Zout</td></tr>
+            <tr><td>No inversor</td><td>Amplificar senal pequena</td><td>Ganancia = 1 + Rf/Rg</td></tr>
+            <tr><td>Filtro activo</td><td>Mejor control de banda</td><td>Opamp estable y bajo ruido</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-13" data-title="senales" data-keys="senal,dc,ac,ruido,jitter,offset,amplitud,frecuencia">
+        <h2>13) Senales analogicas y digitales</h2>
+        <ul>
+          <li><strong>Amplitud</strong>: valor maximo de la senal.</li>
+          <li><strong>Offset</strong>: desplazamiento respecto a 0 V.</li>
+          <li><strong>Frecuencia</strong>: ciclos por segundo.</li>
+          <li><strong>Ruido</strong>: componentes no deseadas superpuestas.</li>
+        </ul>
+
+        <div class="note ok">Antes de procesar software, limpia la senal en hardware lo suficiente para que el ADC no luche contra ruido evitable.</div>
+      </section>
+
+      <section id="sec-14" data-title="adc muestreo aliasing" data-keys="nyquist,adc,sampling,quantization,enob,antialias">
+        <h2>14) ADC, muestreo y aliasing</h2>
+        <div class="formula">
+          fs > 2 * fmax (criterio de Nyquist minimo)
+        </div>
+
+        <p>Si no filtras antes de muestrear, frecuencias altas se pliegan en banda util (aliasing) y tus datos quedan corruptos aunque el codigo sea perfecto.</p>
+
+        <h3>Cadena recomendada</h3>
+        <div class="diagram"><pre>
+Sensor -> Proteccion -> Filtro RC anti-alias -> Buffer OPAMP -> ADC -> DMA -> Procesado
+</pre></div>
+      </section>
+
+      <section id="sec-15" data-title="voltajes ii 3.3v" data-keys="3.3v,5v,level shift,proteccion pin,clamp,divisor">
+        <h2>15) Voltajes II (como proteger pines de 3.3 V)</h2>
+        <p>Tu pregunta clave: "si mi pin acepta 0 a 3.3 V, como limito para quedarme siempre en ese rango?"</p>
+
+        <h3>Estrategias practicas</h3>
+        <ol>
+          <li><strong>Divisor resistivo</strong> para senales lentas y fuentes de alta impedancia.</li>
+          <li><strong>Resistencia serie + diodos de clamp</strong> para picos y robustez adicional.</li>
+          <li><strong>Level shifter</strong> para buses bidireccionales (ej: I2C 5 V <-> 3.3 V).</li>
+          <li><strong>Optoacoplador/aislamiento</strong> para entornos ruidosos o masa incierta.</li>
+          <li><strong>TVS</strong> para conectores externos expuestos.</li>
+        </ol>
+
+        <div class="note warn">
+          Nunca dependas solo de diodos internos del MCU para absorber sobrevoltaje repetido.
+        </div>
+
+        <h3>Ejemplo rapido 5 V -> 3.3 V</h3>
+        <p>Con R1=10k y R2=20k: <code>Vout = 5 * (20k / 30k) = 3.33 V</code>. En practica ajusta tolerancia para no superar umbral bajo variacion.</p>
+      </section>
+
+      <section id="sec-16" data-title="corriente ii" data-keys="driver,relay,motor,ledstrip,pinlimit,mosfet">
+        <h2>16) Corriente II (cargas reales y drivers)</h2>
+        <table>
+          <thead><tr><th>Carga</th><th>No hacer</th><th>Hacer</th></tr></thead>
+          <tbody>
+            <tr><td>Relay</td><td>Pin directo</td><td>Transistor/MOSFET + diodo flyback</td></tr>
+            <tr><td>Motor DC</td><td>MCU directo</td><td>Driver puente H o etapa dedicada</td></tr>
+            <tr><td>Tira LED</td><td>GPIO directo</td><td>MOSFET + fuente separada + masa comun controlada</td></tr>
+            <tr><td>Solenoide</td><td>Sin proteccion</td><td>Clamp para energia inductiva</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-17" data-title="sensores" data-keys="sensor,calibracion,linealizacion,filtrado,offset,ganancia">
+        <h2>17) Sensores: lectura robusta y tratamiento</h2>
+        <ul>
+          <li>Calibra offset y ganancia en condiciones reales.</li>
+          <li>Filtra ruido en hardware y software (media movil, IIR, mediana segun caso).</li>
+          <li>Usa referencias estables para conversion a unidades fisicas.</li>
+          <li>Documenta ecuacion final: <code>magnitud = a * V + b</code> o modelo no lineal.</li>
+        </ul>
+      </section>
+
+      <section id="sec-18" data-title="medicion instrumentos" data-keys="multimetro,osciloscopio,sonda,acoplo,ground,medir">
+        <h2>18) Medicion: multimetro y osciloscopio</h2>
+        <h3>Multimetro (DMM)</h3>
+        <ul>
+          <li>Perfecto para DC estable, continuidad y resistencias.</li>
+          <li>No ideal para transitorios rapidos.</li>
+        </ul>
+
+        <h3>Osciloscopio</h3>
+        <ul>
+          <li>Mide forma real de la senal, ruido, picos, ringing, jitter.</li>
+          <li>Compensa sonda y minimiza lazo de masa para no medir ruido inventado.</li>
+        </ul>
+      </section>
+
+      <section id="sec-19" data-title="ruido emi masa" data-keys="emi,esd,ground,return-path,shield,acople">
+        <h2>19) Ruido, EMI y estrategia de masa</h2>
+        <p>La mitad de los problemas de campo son layout/cableado, no firmware.</p>
+
+        <h3>Reglas utiles</h3>
+        <ul>
+          <li>Mantener retorno de corriente corto y claro.</li>
+          <li>Separar potencia conmutada de analogico sensible.</li>
+          <li>Filtrar y proteger lineas externas (ESD/EMI).</li>
+          <li>Evitar lazos de masa grandes.</li>
+        </ul>
+      </section>
+
+      <section id="sec-20" data-title="pcb embedded" data-keys="pcb,layout,routing,desacoplo,ancho-traza,vias">
+        <h2>20) PCB para sistemas embebidos</h2>
+        <ol>
+          <li>Coloca primero conectores, reguladores y MCU.</li>
+          <li>Agrupa bloques funcionales (fuente, digital, analogico, potencia).</li>
+          <li>Traza power y retorno antes que señales secundarias.</li>
+          <li>Desacopla cada IC cerca del pin.</li>
+          <li>Verifica DRC/clearance y puntos de test.</li>
+        </ol>
+      </section>
+
+      <section id="sec-21" data-title="recetas" data-keys="circuitos,plantillas,modulos,reutilizable">
+        <h2>21) Recetas rapidas de circuitos utiles</h2>
+        <div class="grid3">
+          <div class="note"><h3>R1: Entrada digital 5 V -> 3.3 V</h3><p>Divisor + resistencia serie + TVS en conector.</p></div>
+          <div class="note"><h3>R2: Sensor analogico limpio</h3><p>RC anti-alias + buffer OPAMP + ADC por DMA.</p></div>
+          <div class="note"><h3>R3: LED de estado</h3><p>GPIO + resistencia calculada + corriente segura.</p></div>
+          <div class="note"><h3>R4: Relay</h3><p>MOSFET N + diodo flyback + fuente separada.</p></div>
+          <div class="note"><h3>R5: Boton robusto</h3><p>Pull-up/down + debounce RC o software.</p></div>
+          <div class="note"><h3>R6: Medida de corriente</h3><p>Resistencia shunt + amplificador diferencial.</p></div>
+        </div>
+      </section>
+
+      <section id="sec-22" data-title="flujo diseno" data-keys="metodologia,diseno,validacion,iteracion,prototipo">
+        <h2>22) Flujo de diseno practico</h2>
+        <ol>
+          <li>Definir especificaciones (rango, precision, consumo, costo).</li>
+          <li>Elegir topologia y componentes con datasheet.</li>
+          <li>Calcular peor caso con tolerancias y temperatura.</li>
+          <li>Simular/estimar y construir prototipo simple.</li>
+          <li>Medir, ajustar, documentar y congelar revision.</li>
+        </ol>
+      </section>
+
+      <section id="sec-23" data-title="calculadoras" data-keys="ohm,divisor,led,rc,adc,shunt,offline">
+        <h2>23) Calculadoras offline</h2>
+
+        <div class="calc">
+          <h3>Calculadora Ley de Ohm + potencia</h3>
+          <div class="row">
+            <div><label for="ohmV">V (voltios)</label><input id="ohmV" type="number" value="3.3" step="any" /></div>
+            <div><label for="ohmI">I (amperios)</label><input id="ohmI" type="number" value="0.01" step="any" /></div>
+            <div><label for="ohmR">R (ohmios)</label><input id="ohmR" type="number" value="330" step="any" /></div>
+            <div>
+              <label for="ohmMode">Calcular</label>
+              <select id="ohmMode">
+                <option value="r">R desde V e I</option>
+                <option value="i">I desde V y R</option>
+                <option value="v">V desde I y R</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" id="btnOhm">Calcular</button>
+          <div class="result" id="ohmResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>Divisor resistivo</h3>
+          <div class="row">
+            <div><label for="vin">Vin (V)</label><input id="vin" type="number" value="5" step="any" /></div>
+            <div><label for="r1">R1 (ohmios)</label><input id="r1" type="number" value="10000" step="any" /></div>
+            <div><label for="r2">R2 (ohmios)</label><input id="r2" type="number" value="20000" step="any" /></div>
+            <div><label for="zin">Carga de entrada (ohmios)</label><input id="zin" type="number" value="1000000" step="any" /></div>
+          </div>
+          <div class="row">
+            <div><label for="divPmax">P max por resistencia (W)</label><input id="divPmax" type="number" value="0.125" step="any" /></div>
+          </div>
+          <button class="btn" id="btnDiv">Calcular</button>
+          <div class="result" id="divResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>Resistencia para LED</h3>
+          <div class="row">
+            <div><label for="vccLed">Vcc (V)</label><input id="vccLed" type="number" value="3.3" step="any" /></div>
+            <div><label for="vfLed">Vf LED (V)</label><input id="vfLed" type="number" value="2.0" step="any" /></div>
+            <div><label for="iLedmA">I LED (mA)</label><input id="iLedmA" type="number" value="6" step="any" /></div>
+            <div><label for="pLedRes">Potencia max resistencia (W)</label><input id="pLedRes" type="number" value="0.125" step="any" /></div>
+          </div>
+          <button class="btn" id="btnLed">Calcular</button>
+          <div class="result" id="ledResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>Filtro RC (fc)</h3>
+          <div class="row">
+            <div><label for="rRc">R (ohmios)</label><input id="rRc" type="number" value="1000" step="any" /></div>
+            <div><label for="cRc">C (faradios)</label><input id="cRc" type="number" value="0.0000001" step="any" /></div>
+            <div><label for="freq">Frecuencia de prueba (Hz)</label><input id="freq" type="number" value="1000" step="any" /></div>
+            <div><label for="rcMode">Tipo</label>
+              <select id="rcMode">
+                <option value="lp">Paso bajo</option>
+                <option value="hp">Paso alto</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" id="btnRc">Calcular</button>
+          <div class="result" id="rcResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>ADC: cuenta a voltaje y viceversa</h3>
+          <div class="row">
+            <div><label for="adcBits">Bits ADC</label><input id="adcBits" type="number" value="12" /></div>
+            <div><label for="vref">Vref (V)</label><input id="vref" type="number" value="3.3" step="any" /></div>
+            <div><label for="adcCount">Cuenta ADC</label><input id="adcCount" type="number" value="2048" /></div>
+            <div><label for="adcVolt">Voltaje (V)</label><input id="adcVolt" type="number" value="1.65" step="any" /></div>
+          </div>
+          <button class="btn" id="btnAdc">Calcular</button>
+          <div class="result" id="adcResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+
+        <div class="calc">
+          <h3>Ventana de muestreo</h3>
+          <div class="row">
+            <div><label for="fsWin">fs (Hz)</label><input id="fsWin" type="number" value="10000" step="any" /></div>
+            <div><label for="winMs">Ventana (ms)</label><input id="winMs" type="number" value="20" step="any" /></div>
+            <div><label for="peakMs">Pico esperado (ms)</label><input id="peakMs" type="number" value="8" step="any" /></div>
+            <div><label for="bufCount">Buffers</label><input id="bufCount" type="number" value="4" step="1" /></div>
+          </div>
+          <button class="btn" id="btnWin">Calcular</button>
+          <div class="result" id="winResult">Pulsa "Calcular" para ver resultados.</div>
+        </div>
+      </section>
+
+      <section id="sec-24" data-title="checklist" data-keys="autoevaluacion,niveles,progreso">
+        <h2>24) Checklist por nivel (se guarda offline)</h2>
+        <p>Marca lo dominado. Se guarda en <code>localStorage</code>.</p>
+
+        <h3>Basico</h3>
+        <div class="checklist">
+          <label><input type="checkbox" data-item="b1" /> Entiendo voltaje, corriente y resistencia con unidades correctas.</label>
+          <label><input type="checkbox" data-item="b2" /> Calculo un divisor de tension sin errores.</label>
+          <label><input type="checkbox" data-item="b3" /> Se limitar corriente de un LED de forma segura.</label>
+          <label><input type="checkbox" data-item="b4" /> Se usar un multimetro sin confundir serie/paralelo.</label>
+        </div>
+
+        <h3>Intermedio</h3>
+        <div class="checklist">
+          <label><input type="checkbox" data-item="m1" /> Diseno entrada 5 V segura para ADC de 3.3 V.</label>
+          <label><input type="checkbox" data-item="m2" /> Aplico filtro RC con criterio de frecuencia de corte.</label>
+          <label><input type="checkbox" data-item="m3" /> Uso transistor/MOSFET para cargas sin castigar GPIO.</label>
+          <label><input type="checkbox" data-item="m4" /> Verifico senal real con osciloscopio.</label>
+        </div>
+
+        <h3>Avanzado</h3>
+        <div class="checklist">
+          <label><input type="checkbox" data-item="a1" /> Diseno cadena analogica completa para ADC robusto.</label>
+          <label><input type="checkbox" data-item="a2" /> Mitigo EMI/ESD en conectores y cableado.</label>
+          <label><input type="checkbox" data-item="a3" /> Hago analisis de peor caso con tolerancias y temperatura.</label>
+          <label><input type="checkbox" data-item="a4" /> Paso de prototipo a PCB manteniendo comportamiento.</label>
+        </div>
+
+        <button class="btn" id="btnResetChecklist">Reset checklist</button>
+      </section>
+
+      <section id="sec-25" data-title="errores tipicos" data-keys="fallos,errores,debug,fix,aprendizaje">
+        <h2>25) Errores clasicos y como corregirlos</h2>
+        <table>
+          <thead><tr><th>Error</th><th>Sintoma</th><th>Correccion</th></tr></thead>
+          <tbody>
+            <tr><td>Sin masa comun</td><td>Lecturas locas o sin comunicacion</td><td>Definir referencia comun o aislamiento real</td></tr>
+            <tr><td>ADC sin anti-alias</td><td>Datos inconsistentes por aliasing</td><td>Agregar RC y ajustar fs</td></tr>
+            <tr><td>Carga en GPIO</td><td>Pin caliente/reset</td><td>Mover carga a driver transistor</td></tr>
+            <tr><td>Falta desacoplo</td><td>Reinicio aleatorio</td><td>100 nF cercano + bulk en rail</td></tr>
+            <tr><td>Asumir 3.3 V exactos</td><td>Error de conversion</td><td>Medir Vref real y calibrar</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-26" data-title="roadmap electronica" data-keys="plan,aprendizaje,proyecto,avance,metas">
+        <h2>26) Roadmap tecnico recomendado</h2>
+        <table>
+          <thead><tr><th>Fase</th><th>Duracion orientativa</th><th>Objetivo</th><th>Entrega</th></tr></thead>
+          <tbody>
+            <tr><td>F1: Fundamentos</td><td>1-2 semanas</td><td>V, I, R, potencia, seguridad</td><td>Practicas de medicion fiables</td></tr>
+            <tr><td>F2: Interfaz MCU</td><td>2 semanas</td><td>Entradas 3.3 V seguras y salidas controladas</td><td>Modulo de IO robusto</td></tr>
+            <tr><td>F3: Senal</td><td>2-3 semanas</td><td>Filtros, ADC, ruido, calibracion</td><td>Cadena de adquisicion estable</td></tr>
+            <tr><td>F4: Diseno</td><td>2 semanas</td><td>PCB, validacion y tolerancias</td><td>Placa funcional reproducible</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note ok">Cuando domines este manual, ya tendras base real para disenar tus propios circuitos con criterio tecnico y no solo por prueba/error.</div>
+      </section>
+
+      <p class="footer">Manual vivo de Electronica. Version offline local. Validar siempre limites y condiciones en datasheet y notas de aplicacion oficiales.</p>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const nav = document.getElementById('sideNav');
+      const links = Array.from(nav.querySelectorAll('a[href^="#"]'));
+      const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+      const SPY_OFFSET_PX = 105;
+      const MAX_SCROLL_SPEED_PX_PER_S = 1350;
+      const MIN_SCROLL_DURATION_MS = 260;
+      const MAX_SCROLL_DURATION_MS = 1400;
+      let lockActiveId = null;
+      let lockTimer = null;
+      let ticking = false;
+
+      function smoothScrollToY(targetY) {
+        const startY = window.scrollY;
+        const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        const finalY = Math.max(0, Math.min(targetY, maxY));
+        const distance = finalY - startY;
+
+        if (Math.abs(distance) < 2) {
+          window.scrollTo(0, finalY);
+          return Promise.resolve();
+        }
+
+        const durationBySpeed = (Math.abs(distance) / MAX_SCROLL_SPEED_PX_PER_S) * 1000;
+        const duration = Math.min(MAX_SCROLL_DURATION_MS, Math.max(MIN_SCROLL_DURATION_MS, durationBySpeed));
+
+        return new Promise((resolve) => {
+          const t0 = performance.now();
+
+          function easeInOutCubic(t) {
+            return t < 0.5
+              ? 4 * t * t * t
+              : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          }
+
+          function frame(now) {
+            const elapsed = now - t0;
+            const p = Math.min(1, elapsed / duration);
+            const e = easeInOutCubic(p);
+            window.scrollTo(0, startY + distance * e);
+
+            if (p < 1) {
+              requestAnimationFrame(frame);
+            } else {
+              resolve();
+            }
+          }
+
+          requestAnimationFrame(frame);
+        });
+      }
+
+      function setActiveById(id) {
+        links.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+
+      function getActiveSectionByScroll() {
+        if (!sections.length) return null;
+
+        if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 2)) {
+          return sections[sections.length - 1];
+        }
+
+        const viewportH = window.innerHeight;
+        let best = null;
+        let bestDist = Number.POSITIVE_INFINITY;
+
+        for (let i = 0; i < sections.length; i++) {
+          const rect = sections[i].getBoundingClientRect();
+          const isVisible = rect.bottom > 0 && rect.top < viewportH;
+          if (!isVisible) continue;
+          const dist = Math.abs(rect.top - SPY_OFFSET_PX);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = sections[i];
+          }
+        }
+
+        if (best) return best;
+
+        const y = window.scrollY + SPY_OFFSET_PX;
+        let current = sections[0];
+        for (let i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= y) current = sections[i];
+          else break;
+        }
+        return current;
+      }
+
+      function updateActiveFromScroll() {
+        if (lockActiveId) {
+          setActiveById(lockActiveId);
+          return;
+        }
+        const sec = getActiveSectionByScroll();
+        if (sec) setActiveById(sec.id);
+      }
+
+      links.forEach(link => {
+        link.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          const href = link.getAttribute('href');
+          const target = document.querySelector(href);
+          if (!target) return;
+
+          const id = href.slice(1);
+          lockActiveId = id;
+          if (lockTimer) clearTimeout(lockTimer);
+          lockTimer = setTimeout(() => {
+            lockActiveId = null;
+            updateActiveFromScroll();
+          }, 1600);
+
+          setActiveById(id);
+          const targetY = window.scrollY + target.getBoundingClientRect().top - 8;
+          smoothScrollToY(targetY).then(() => {
+            lockActiveId = null;
+            updateActiveFromScroll();
+          });
+        });
+      });
+
+      window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          updateActiveFromScroll();
+          ticking = false;
+        });
+      }, { passive: true });
+
+      const navFilter = document.getElementById('navFilter');
+      navFilter.addEventListener('input', () => {
+        const q = navFilter.value.trim().toLowerCase();
+        links.forEach(link => {
+          const sec = document.querySelector(link.getAttribute('href'));
+          const text = (link.textContent + ' ' + (sec ? ((sec.dataset.title || '') + ' ' + (sec.dataset.keys || '')) : '')).toLowerCase();
+          link.classList.toggle('hidden-by-filter', !!q && !text.includes(q));
+        });
+      });
+
+      function calcOhm() {
+        const V = Number(document.getElementById('ohmV').value);
+        const I = Number(document.getElementById('ohmI').value);
+        const R = Number(document.getElementById('ohmR').value);
+        const mode = document.getElementById('ohmMode').value;
+        const out = document.getElementById('ohmResult');
+
+        if (mode === 'r') {
+          if (!(V >= 0) || !(I > 0)) { out.textContent = 'Valores invalidos para R.'; return; }
+          const r = V / I;
+          const p = V * I;
+          out.textContent = 'R = ' + r.toFixed(6) + ' ohm\nP = ' + p.toFixed(6) + ' W';
+          return;
+        }
+
+        if (mode === 'i') {
+          if (!(V >= 0) || !(R > 0)) { out.textContent = 'Valores invalidos para I.'; return; }
+          const i = V / R;
+          const p = V * i;
+          out.textContent = 'I = ' + i.toFixed(9) + ' A\nP = ' + p.toFixed(6) + ' W';
+          return;
+        }
+
+        if (!(I >= 0) || !(R >= 0)) { out.textContent = 'Valores invalidos para V.'; return; }
+        const v = I * R;
+        const p = v * I;
+        out.textContent = 'V = ' + v.toFixed(6) + ' V\nP = ' + p.toFixed(6) + ' W';
+      }
+
+      function calcDiv() {
+        const Vin = Number(document.getElementById('vin').value);
+        const R1 = Number(document.getElementById('r1').value);
+        const R2 = Number(document.getElementById('r2').value);
+        const Zin = Number(document.getElementById('zin').value);
+        const Pmax = Number(document.getElementById('divPmax').value);
+        const out = document.getElementById('divResult');
+
+        if (!(Vin >= 0) || !(R1 > 0) || !(R2 > 0) || !(Zin > 0) || !(Pmax > 0)) {
+          out.textContent = 'Valores invalidos.';
+          return;
+        }
+
+        const VoutIdeal = Vin * (R2 / (R1 + R2));
+        const R2eff = (R2 * Zin) / (R2 + Zin);
+        const VoutLoad = Vin * (R2eff / (R1 + R2eff));
+        const Itot = Vin / (R1 + R2);
+        const pR1 = Itot * Itot * R1;
+        const pR2 = Itot * Itot * R2;
+        const okR1 = pR1 <= (0.5 * Pmax);
+        const okR2 = pR2 <= (0.5 * Pmax);
+
+        out.textContent =
+          'Vout ideal = ' + VoutIdeal.toFixed(6) + ' V\n' +
+          'Vout con carga = ' + VoutLoad.toFixed(6) + ' V\n' +
+          'I divisor = ' + Itot.toFixed(9) + ' A\n' +
+          'P_R1 = ' + pR1.toFixed(6) + ' W\n' +
+          'P_R2 = ' + pR2.toFixed(6) + ' W\n\n' +
+          'Margen 50% de Pmax:\n' +
+          'R1: ' + (okR1 ? 'OK' : 'NO') + '\n' +
+          'R2: ' + (okR2 ? 'OK' : 'NO') + '\n\n' +
+          'Tip: si Vout cambia mucho con carga, usa buffer OPAMP.';
+      }
+
+      function calcLed() {
+        const Vcc = Number(document.getElementById('vccLed').value);
+        const Vf = Number(document.getElementById('vfLed').value);
+        const ImA = Number(document.getElementById('iLedmA').value);
+        const Pmax = Number(document.getElementById('pLedRes').value);
+        const out = document.getElementById('ledResult');
+
+        const I = ImA / 1000;
+        if (!(Vcc > 0) || !(Vf >= 0) || !(I > 0) || !(Pmax > 0) || Vcc <= Vf) {
+          out.textContent = 'Valores invalidos.';
+          return;
+        }
+
+        const R = (Vcc - Vf) / I;
+        const P = I * I * R;
+        const ok = P <= (0.5 * Pmax);
+
+        out.textContent =
+          'R recomendada = ' + R.toFixed(3) + ' ohm\n' +
+          'P resistencia = ' + P.toFixed(6) + ' W\n' +
+          'Margen termico 50% = ' + (ok ? 'OK' : 'NO') + '\n\n' +
+          'Usa valor comercial inmediato superior de resistencia.';
+      }
+
+      function calcRc() {
+        const R = Number(document.getElementById('rRc').value);
+        const C = Number(document.getElementById('cRc').value);
+        const f = Number(document.getElementById('freq').value);
+        const mode = document.getElementById('rcMode').value;
+        const out = document.getElementById('rcResult');
+
+        if (!(R > 0) || !(C > 0) || !(f > 0)) {
+          out.textContent = 'Valores invalidos.';
+          return;
+        }
+
+        const fc = 1 / (2 * Math.PI * R * C);
+        const x = f / fc;
+        let mag;
+
+        if (mode === 'lp') {
+          mag = 1 / Math.sqrt(1 + x * x);
+        } else {
+          mag = x / Math.sqrt(1 + x * x);
+        }
+
+        const db = 20 * Math.log10(mag);
+
+        out.textContent =
+          'fc = ' + fc.toFixed(3) + ' Hz\n' +
+          '|H(f)| = ' + mag.toFixed(6) + ' (lineal)\n' +
+          'Ganancia = ' + db.toFixed(3) + ' dB';
+      }
+
+      function calcAdc() {
+        const bits = Number(document.getElementById('adcBits').value);
+        const vref = Number(document.getElementById('vref').value);
+        const count = Number(document.getElementById('adcCount').value);
+        const volt = Number(document.getElementById('adcVolt').value);
+        const out = document.getElementById('adcResult');
+
+        if (!(bits >= 1 && bits <= 24) || !(vref > 0)) {
+          out.textContent = 'Bits o Vref invalidos.';
+          return;
+        }
+
+        const fs = Math.pow(2, bits) - 1;
+        const vFromCount = (count / fs) * vref;
+        const cFromVolt = (volt / vref) * fs;
+
+        out.textContent =
+          'FS counts = ' + fs + '\n' +
+          'Voltaje desde cuenta = ' + vFromCount.toFixed(6) + ' V\n' +
+          'Cuenta desde voltaje = ' + cFromVolt.toFixed(3) + '\n\n' +
+          'Nota: en hardware real hay offset, ruido y error de ganancia.';
+      }
+
+      function calcWindow() {
+        const fs = Number(document.getElementById('fsWin').value);
+        const winMs = Number(document.getElementById('winMs').value);
+        const peakMs = Number(document.getElementById('peakMs').value);
+        const buffers = Number(document.getElementById('bufCount').value);
+        const out = document.getElementById('winResult');
+
+        if (!(fs > 0) || !(winMs > 0) || !(buffers > 0)) {
+          out.textContent = 'Valores invalidos.';
+          return;
+        }
+
+        const n = fs * (winMs / 1000);
+        const dtUs = 1e6 / fs;
+        const peakIndex = Math.max(0, Math.round((peakMs / 1000) * fs));
+        const totalSamples = n * buffers;
+
+        out.textContent =
+          'N por ventana = ' + n.toFixed(2) + ' muestras\n' +
+          'dt = ' + dtUs.toFixed(3) + ' us\n' +
+          'Indice estimado de pico = ' + peakIndex + '\n' +
+          'Muestras totales (buffers) = ' + totalSamples.toFixed(2) + '\n\n' +
+          'Consejo: redondea N a entero y ajusta fs para repetir medidas.';
+      }
+
+      function injectSectionDependencies() {
+        const deps = {
+          'sec-01': ['sec-00', 'sec-00b', 'sec-00c'],
+          'sec-02': ['sec-01'],
+          'sec-03': ['sec-02'],
+          'sec-04': ['sec-02', 'sec-03'],
+          'sec-05': ['sec-03', 'sec-04'],
+          'sec-06': ['sec-04', 'sec-05'],
+          'sec-07': ['sec-05', 'sec-06'],
+          'sec-08': ['sec-06', 'sec-07'],
+          'sec-09': ['sec-05', 'sec-07', 'sec-08'],
+          'sec-10': ['sec-04', 'sec-05', 'sec-06'],
+          'sec-11': ['sec-03', 'sec-05', 'sec-10'],
+          'sec-12': ['sec-06', 'sec-08', 'sec-11'],
+          'sec-13': ['sec-02', 'sec-08', 'sec-12'],
+          'sec-14': ['sec-08', 'sec-12', 'sec-13'],
+          'sec-15': ['sec-06', 'sec-10', 'sec-14'],
+          'sec-16': ['sec-05', 'sec-10', 'sec-11'],
+          'sec-17': ['sec-12', 'sec-13', 'sec-14'],
+          'sec-18': ['sec-13', 'sec-14', 'sec-17'],
+          'sec-19': ['sec-07', 'sec-09', 'sec-18'],
+          'sec-20': ['sec-07', 'sec-19'],
+          'sec-21': ['sec-10', 'sec-12', 'sec-15', 'sec-16'],
+          'sec-22': ['sec-17', 'sec-18', 'sec-20', 'sec-21'],
+          'sec-23': ['sec-04', 'sec-06', 'sec-08', 'sec-14'],
+          'sec-24': ['sec-01', 'sec-23'],
+          'sec-25': ['sec-15', 'sec-19', 'sec-20'],
+          'sec-26': ['sec-22', 'sec-24', 'sec-25']
+        };
+
+        Object.keys(deps).forEach((id) => {
+          const sec = document.getElementById(id);
+          if (!sec || sec.querySelector('.dep-chain')) return;
+
+          const h2 = sec.querySelector('h2');
+          if (!h2) return;
+
+          const names = deps[id].map((depId) => {
+            const depSec = document.getElementById(depId);
+            if (!depSec) return depId;
+            const depTitle = depSec.querySelector('h2');
+            return depTitle ? depTitle.textContent : depId;
+          });
+
+          const depNote = document.createElement('div');
+          depNote.className = 'dep-chain';
+          depNote.textContent = 'Se apoya en: ' + names.join(' | ');
+          h2.insertAdjacentElement('afterend', depNote);
+        });
+      }
+
+      const boxes = Array.from(document.querySelectorAll('.checklist input[type="checkbox"][data-item]'));
+      const STORE = 'electronica_manual_checklist_v1';
+
+      function loadChecklist() {
+        try {
+          const raw = localStorage.getItem(STORE);
+          const data = raw ? JSON.parse(raw) : {};
+          boxes.forEach(cb => { cb.checked = !!data[cb.dataset.item]; });
+        } catch (_) {}
+      }
+
+      function saveChecklist() {
+        const data = {};
+        boxes.forEach(cb => { data[cb.dataset.item] = cb.checked; });
+        localStorage.setItem(STORE, JSON.stringify(data));
+      }
+
+      boxes.forEach(cb => cb.addEventListener('change', saveChecklist));
+      document.getElementById('btnResetChecklist').addEventListener('click', () => {
+        boxes.forEach(cb => { cb.checked = false; });
+        saveChecklist();
+      });
+
+      document.getElementById('btnOhm').addEventListener('click', calcOhm);
+      document.getElementById('btnDiv').addEventListener('click', calcDiv);
+      document.getElementById('btnLed').addEventListener('click', calcLed);
+      document.getElementById('btnRc').addEventListener('click', calcRc);
+      document.getElementById('btnAdc').addEventListener('click', calcAdc);
+      document.getElementById('btnWin').addEventListener('click', calcWindow);
+
+      injectSectionDependencies();
+      loadChecklist();
+      calcOhm();
+      calcDiv();
+      calcLed();
+      calcRc();
+      calcAdc();
+      calcWindow();
+
+      if (location.hash) {
+        const id = location.hash.slice(1);
+        setActiveById(id);
+        const target = document.getElementById(id);
+        if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      } else {
+        updateActiveFromScroll();
+      }
+    })();
+  </script>
+
+  <script>
+    const ACRONYM_MAP = {
+      MCU: 'Microcontroller Unit - microcontrolador',
+      GPIO: 'General Purpose Input/Output - pines de entrada/salida',
+      ADC: 'Analog to Digital Converter - convertidor analogico digital',
+      PWM: 'Pulse Width Modulation - modulacion por ancho de pulso',
+      I2C: 'Inter-Integrated Circuit - bus serie de dos hilos',
+      SPI: 'Serial Peripheral Interface - bus serie sincronico',
+      UART: 'Universal Asynchronous Receiver-Transmitter - comunicacion serie asincrona',
+      ESD: 'Electrostatic Discharge - descarga electrostatica',
+      EMI: 'Electromagnetic Interference - interferencia electromagnetica',
+      OPAMP: 'Operational Amplifier - amplificador operacional',
+      DMA: 'Direct Memory Access - transferencia de datos sin CPU',
+      RC: 'Resistor-Capacitor - red de resistencia y condensador',
+      TVS: 'Transient Voltage Suppressor - supresor de transitorios',
+      DMM: 'Digital Multimeter - multimetro digital',
+      PCB: 'Printed Circuit Board - placa de circuito impreso',
+      GND: 'Ground - referencia de potencial del circuito'
+    };
+
+    (function markAcronyms() {
+      const SKIP_TAGS = new Set(['SCRIPT','STYLE','PRE','CODE','INPUT','SELECT','TEXTAREA','ABBR','BUTTON']);
+      const keys = Object.keys(ACRONYM_MAP).sort((a, b) => b.length - a.length);
+      const escaped = keys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      const pattern = new RegExp('\\b(' + escaped.join('|') + ')\\b', 'g');
+
+      function processNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.nodeValue;
+          if (!pattern.test(text)) return;
+          pattern.lastIndex = 0;
+
+          const frag = document.createDocumentFragment();
+          let last = 0;
+          let m;
+
+          while ((m = pattern.exec(text)) !== null) {
+            const sigla = m[1];
+            const tip = ACRONYM_MAP[sigla];
+            if (!tip) continue;
+
+            if (m.index > last) {
+              frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+            }
+
+            const abbr = document.createElement('abbr');
+            abbr.dataset.tip = tip;
+            abbr.textContent = sigla;
+            frag.appendChild(abbr);
+            last = m.index + sigla.length;
+          }
+
+          if (last === 0) return;
+          if (last < text.length) {
+            frag.appendChild(document.createTextNode(text.slice(last)));
+          }
+
+          if (node.parentNode) node.parentNode.replaceChild(frag, node);
+          return;
+        }
+
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (SKIP_TAGS.has(node.tagName)) return;
+          Array.from(node.childNodes).forEach(processNode);
+        }
+      }
+
+      processNode(document.getElementById('contentRoot'));
+    })();
+  </script>
+</body>
+</html>

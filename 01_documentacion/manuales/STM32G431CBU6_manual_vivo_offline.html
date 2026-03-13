@@ -6,19 +6,19 @@
   <title>STM32G431CBU6 - Manual Vivo Offline</title>
   <style>
     :root {
-      --bg1: #08090c;
-      --bg2: #0e1015;
-      --panel: #121419;
-      --panel2: #171a21;
-      --ink: #f3efe6;
-      --muted: #e4dac8;
-      --line: #4b4460;
-      --accent: #d8c6ff;
-      --accent2: #7c5ac6;
-      --ok: #bda9ff;
-      --warn: #e8d9b6;
-      --danger: #cda9ff;
-      --code: #0d0f14;
+      --bg1: #1e1e1e;
+      --bg2: #252526;
+      --panel: #252526;
+      --panel2: #2d2d30;
+      --ink: #d4d4d4;
+      --muted: #969696;
+      --line: #454545;
+      --accent: #569cd6;
+      --accent2: #264f78;
+      --ok: #4ec9b0;
+      --warn: #dcdcaa;
+      --danger: #f44747;
+      --code: #1e1e1e;
     }
 
     * { box-sizing: border-box; }
@@ -28,11 +28,8 @@
     body {
       margin: 0;
       color: var(--ink);
-      background:
-        radial-gradient(circle at 8% 10%, #16171d 0%, transparent 38%),
-        radial-gradient(circle at 92% 16%, #1d1828 0%, transparent 34%),
-        linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
-      font-family: "Bahnschrift", "Segoe UI", "Verdana", sans-serif;
+      background: var(--bg1);
+      font-family: "Consolas", "Segoe UI", "Verdana", sans-serif;
       font-size: 17px;
       line-height: 1.62;
       overscroll-behavior-y: none;
@@ -50,14 +47,14 @@
       height: 100vh;
       overflow: auto;
       border-right: 1px solid var(--line);
-      background: linear-gradient(180deg, #121419 0%, #0e1015 100%);
+      background: #333333;
       padding: 16px;
     }
 
     .brand {
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: #161922;
+      background: #2d2d30;
       padding: 12px;
       margin-bottom: 12px;
     }
@@ -66,7 +63,7 @@
       margin: 0;
       font-size: 1.18rem;
       letter-spacing: 0.3px;
-      color: #f5f5f5;
+      color: #d4d4d4;
     }
 
     .brand p {
@@ -77,7 +74,7 @@
 
     .quick {
       border: 1px solid var(--line);
-      background: #141820;
+      background: #2d2d30;
       border-radius: 12px;
       padding: 10px;
       margin-bottom: 12px;
@@ -88,21 +85,21 @@
 
     .quick input {
       width: 100%;
-      border: 1px solid #4e4664;
+      border: 1px solid #454545;
       border-radius: 8px;
       padding: 7px 8px;
       font: inherit;
-      background: #0d1118;
+      background: #1e1e1e;
       color: var(--ink);
     }
 
     nav a {
       display: block;
       margin: 5px 0;
-      border: 1px solid #4d4562;
+      border: 1px solid #454545;
       border-radius: 9px;
-      background: #131721;
-      color: #f5f5f5;
+      background: #2d2d30;
+      color: #d4d4d4;
       text-decoration: none;
       padding: 8px 10px;
       font-size: 0.95rem;
@@ -112,35 +109,35 @@
     nav a:hover, nav a:focus {
       outline: none;
       transform: translateX(2px);
-      border-color: #e2d4ff;
-      background: #2a2140;
-      box-shadow: 0 2px 10px rgba(182, 132, 255, 0.38);
+      border-color: #569cd6;
+      background: #264f78;
+      box-shadow: 0 2px 10px rgba(86, 156, 214, 0.3);
     }
 
     nav a.active {
-      border: 2px solid #ffffff;
-      background: linear-gradient(90deg, #3a2b58 0%, #2f2348 100%);
-      color: #f4e6b8;
+      border: 2px solid #569cd6;
+      background: #264f78;
+      color: #d4d4d4;
       font-weight: 700;
       outline: none;
       transform: none;
       position: relative;
       z-index: 1;
-      box-shadow: 0 0 10px rgba(179, 132, 255, 0.28), 0 2px 8px rgba(160, 120, 255, 0.25);
+      box-shadow: 0 0 8px rgba(86, 156, 214, 0.4);
     }
 
     nav a.active:hover,
     nav a.active:focus {
       transform: none;
-      border-color: #ffffff;
-      background: linear-gradient(90deg, #3a2b58 0%, #2f2348 100%);
-      box-shadow: 0 0 10px rgba(179, 132, 255, 0.28), 0 2px 8px rgba(160, 120, 255, 0.25);
+      border-color: #569cd6;
+      background: #264f78;
+      box-shadow: 0 0 8px rgba(86, 156, 214, 0.4);
     }
 
     .legend {
       margin-top: 12px;
       border-left: 4px solid var(--accent);
-      background: #141923;
+      background: #2d2d30;
       border-radius: 8px;
       padding: 9px;
       font-size: 0.92rem;
@@ -156,15 +153,15 @@
       border: 1px solid var(--line);
       border-radius: 14px;
       background: var(--panel);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
       padding: 16px;
       margin-bottom: 14px;
     }
 
     h2 {
       margin: 0 0 10px;
-      border-bottom: 1px dashed #574d70;
-      color: #f5f5f5;
+      border-bottom: 1px dashed #454545;
+      color: #569cd6;
       letter-spacing: 0.22px;
       padding-bottom: 6px;
       scroll-margin-top: 16px;
@@ -173,7 +170,7 @@
 
     h3 {
       margin: 12px 0 7px;
-      color: #f0e8d8;
+      color: #9cdcfe;
       font-size: 1.06rem;
     }
 
@@ -189,19 +186,20 @@
 
     .chip {
       display: inline-block;
-      border: 1px solid #5a5071;
+      border: 1px solid #454545;
       border-radius: 999px;
-      background: #1d2029;
+      background: #2d2d30;
       padding: 2px 9px;
       margin: 2px 4px 2px 0;
       font-size: 0.82rem;
+      color: #9cdcfe;
     }
 
     .note {
       margin: 10px 0;
-      border: 1px solid #564d6e;
+      border: 1px solid #454545;
       border-radius: 10px;
-      background: #181c24;
+      background: #2d2d30;
       padding: 10px;
       font-size: 0.92rem;
     }
@@ -227,23 +225,23 @@
       border-collapse: collapse;
       margin: 9px 0;
       font-size: 0.96rem;
-      background: #151a23;
+      background: #252526;
     }
 
     th, td {
-      border: 1px solid #4e4665;
+      border: 1px solid #454545;
       padding: 8px;
       text-align: left;
       vertical-align: top;
     }
 
     td {
-      background: #171c26;
+      background: #252526;
     }
 
     th {
-      background: #1a1e26;
-      color: #f0e2c4;
+      background: #2d2d30;
+      color: #dcdcaa;
     }
 
     code, pre { font-family: "Consolas", "Lucida Console", monospace; }
@@ -251,8 +249,8 @@
     pre {
       margin: 9px 0;
       background: var(--code);
-      color: #f6f0e4;
-      border: 1px solid #4e4665;
+      color: #d4d4d4;
+      border: 1px solid #454545;
       border-radius: 10px;
       padding: 12px;
       overflow: auto;
@@ -262,25 +260,25 @@
 
     .formula {
       margin: 9px 0;
-      border: 1px dashed #5a5071;
+      border: 1px dashed #454545;
       border-radius: 8px;
-      background: #151922;
+      background: #2d2d30;
       padding: 8px;
       font-family: "Consolas", "Lucida Console", monospace;
       overflow: auto;
-      color: #f6f0e4;
+      color: #ce9178;
     }
 
     .diagram {
-      border: 1px solid #554c6d;
+      border: 1px solid #454545;
       border-radius: 10px;
-      background: #141922;
+      background: #1e1e1e;
       padding: 8px;
       overflow: auto;
     }
 
     .calc {
-      border: 1px solid #554c6d;
+      border: 1px solid #454545;
       border-radius: 12px;
       background: var(--panel2);
       padding: 10px;
@@ -297,15 +295,15 @@
     .calc label {
       display: block;
       font-size: 0.9rem;
-      color: #efe6d4;
+      color: #d4d4d4;
       margin-bottom: 4px;
     }
 
     .calc input, .calc select {
       width: 100%;
-      border: 1px solid #554c6d;
+      border: 1px solid #454545;
       border-radius: 8px;
-      background: #0b0f16;
+      background: #1e1e1e;
       padding: 6px 7px;
       font: inherit;
       color: var(--ink);
@@ -313,33 +311,34 @@
 
     .btn {
       display: inline-block;
-      border: 1px solid #b89cff;
+      border: 1px solid #569cd6;
       border-radius: 8px;
-      background: linear-gradient(180deg, #7a5fd4 0%, #664bbf 100%);
-      color: #f5ecd8;
+      background: #264f78;
+      color: #d4d4d4;
       font-weight: 700;
       padding: 7px 10px;
       cursor: pointer;
       font-size: 0.95rem;
     }
 
-    .btn:hover { filter: brightness(1.02); }
+    .btn:hover { filter: brightness(1.15); }
 
     .result {
       margin-top: 8px;
-      border: 1px solid #554c6d;
+      border: 1px solid #454545;
       border-radius: 8px;
-      background: #121722;
+      background: #1e1e1e;
       padding: 8px;
       font-size: 0.95rem;
       white-space: pre-wrap;
+      color: #4ec9b0;
     }
 
     .checklist label {
       display: block;
-      border: 1px solid #554c6d;
+      border: 1px solid #454545;
       border-radius: 8px;
-      background: #141922;
+      background: #2d2d30;
       padding: 8px;
       margin: 6px 0;
       cursor: pointer;
@@ -349,21 +348,21 @@
 
     .kbd {
       display: inline-block;
-      border: 1px solid #665a81;
+      border: 1px solid #454545;
       border-radius: 6px;
-      background: #1c212c;
+      background: #2d2d30;
       padding: 1px 6px;
       font-family: "Consolas", "Lucida Console", monospace;
       font-size: 0.82rem;
-      color: #f3e6ca;
+      color: #dcdcaa;
     }
 
     a {
-      color: #f5f5f5;
+      color: #569cd6;
     }
 
     a:hover {
-      color: #ffffff;
+      color: #9cdcfe;
     }
 
     .footer {
@@ -390,6 +389,46 @@
     @media (max-width: 700px) {
       .grid2, .grid3 { grid-template-columns: 1fr; }
       .calc .row { grid-template-columns: 1fr; }
+    }
+
+    /* ── Tooltip de siglas ── */
+    abbr[data-tip] {
+      text-decoration: underline dotted #569cd6;
+      text-underline-offset: 3px;
+      cursor: help;
+      position: relative;
+      color: #9cdcfe;
+    }
+
+    abbr[data-tip]::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2d2d30;
+      color: #d4d4d4;
+      border: 1px solid #569cd6;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 0.80rem;
+      font-family: "Consolas", "Segoe UI", sans-serif;
+      font-style: normal;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 160ms ease;
+      z-index: 999;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.55);
+      max-width: 360px;
+      white-space: normal;
+      text-align: center;
+      width: max-content;
+    }
+
+    abbr[data-tip]:hover::after,
+    abbr[data-tip]:focus::after {
+      opacity: 1;
     }
   </style>
 </head>
@@ -513,6 +552,9 @@
             <tr><td>ISR/IRQ</td><td>Interrupt Service Routine / Interrupt Request</td><td>Evento de interrupcion y rutina que lo atiende.</td></tr>
             <tr><td>TIM</td><td>Timer</td><td>Temporizador/contador hardware de alta precision.</td></tr>
             <tr><td>PSC / ARR</td><td>Prescaler / Auto-Reload Register</td><td>Registros clave para fijar frecuencia y periodo de timer.</td></tr>
+            <tr><td>CNT</td><td>Counter Register</td><td>Valor actual (o inicial) del contador del timer.</td></tr>
+            <tr><td>LAT / TRIS</td><td>Terminologia tipica de PIC</td><td>No son registros nativos de STM32; en STM32 se usa GPIOx_ODR/BSRR/MODER, etc.</td></tr>
+            <tr><td>TRIM (HSITRIM)</td><td>Oscillator Trimming</td><td>Ajuste fino de oscilador interno (cuando aplica), no una variable global de usuario.</td></tr>
             <tr><td>PWM</td><td>Pulse Width Modulation</td><td>Control de duty cycle para potencia/control de actuadores.</td></tr>
             <tr><td>ADC / DAC</td><td>Analog-Digital / Digital-Analog Converter</td><td>Conversion entre mundo analogico y digital.</td></tr>
             <tr><td>DMA</td><td>Direct Memory Access</td><td>Transfiere datos periferico-memoria sin cargar CPU.</td></tr>
@@ -525,6 +567,10 @@
             <tr><td>GND</td><td>Ground</td><td>Referencia de potencial comun del circuito.</td></tr>
           </tbody>
         </table>
+
+        <div class="note warn">
+          Aclaracion importante de portabilidad: si vienes de PIC/AVR/Arduino, en STM32 no existen variables "magicas" tipo <code>LAT</code> o <code>TRIS</code>. Tu firmware define sus variables; el hardware se controla con registros (directo) o con HAL/LL.
+        </div>
 
         <h3>Vocabulario minimo que conviene dominar</h3>
         <table>
@@ -773,6 +819,34 @@ HSI/HSE ----> PLL(M,N,R,P,Q) ----> SYSCLK ----> AHB(HCLK) ----> APB1/APB2(PCLK)
           <li>Haz debounce (software/hardware).</li>
           <li>En ISR: solo bandera y salida rapida.</li>
         </ul>
+
+        <h3>Registros GPIO utiles (si trabajas sin HAL)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Registro</th>
+              <th>Para que sirve</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>GPIOx_MODER</td><td>Selecciona modo del pin (input/output/AF/analog).</td></tr>
+            <tr><td>GPIOx_OTYPER</td><td>Define push-pull u open-drain.</td></tr>
+            <tr><td>GPIOx_PUPDR</td><td>Configura pull-up/pull-down.</td></tr>
+            <tr><td>GPIOx_IDR</td><td>Lee nivel logico de entrada.</td></tr>
+            <tr><td>GPIOx_ODR / GPIOx_BSRR</td><td>Escribe salida digital (BSRR recomendado por atomicidad).</td></tr>
+            <tr><td>GPIOx_AFRL / GPIOx_AFRH</td><td>Selecciona Alternate Function por pin.</td></tr>
+          </tbody>
+        </table>
+
+        <pre><code>// Ejemplo conceptual: mismo pin en digital o analogico
+// Digital output
+GPIOA->MODER &= ~(0x3u << (5 * 2));
+GPIOA->MODER |=  (0x1u << (5 * 2));
+
+// Analog input
+GPIOA->MODER &= ~(0x3u << (0 * 2));
+GPIOA->MODER |=  (0x3u << (0 * 2));
+</code></pre>
       </section>
 
       <section id="sec-05" data-title="nvic prioridades interrupciones isr latency jitter" data-keys="preempcion,callback,eventos,concurrencia,tiempo-real,handler,flags,prioridad,irq,scheduler">
@@ -885,6 +959,21 @@ Registros clave:
 // PSC=169 => f_cnt=1 MHz
 // ARR=199 => f_update=1 MHz/200=5 kHz
 </code></pre>
+
+        <h3>Valor inicial del timer (CNT) y primer evento</h3>
+        <p>Si necesitas fase o retardo inicial, puedes cargar <code>CNT</code> antes de arrancar. En modo upcount, si <code>CNT0</code> es el valor inicial y <code>CNT0 &lt;= ARR</code>:</p>
+        <div class="formula">
+          ticks_hasta_primer_update = (ARR - CNT0 + 1)
+          <br />t_primer_update = ticks_hasta_primer_update / f_cnt
+        </div>
+
+        <pre><code>// Arranque con contador inicial
+      TIM6->PSC = 169;
+      TIM6->ARR = 199;
+      TIM6->CNT = 50;      // fase/retardo inicial
+      TIM6->EGR = TIM_EGR_UG;
+      TIM6->CR1 |= TIM_CR1_CEN;
+      </code></pre>
       </section>
 
       <section id="sec-07" data-title="pwm input capture output compare one pulse encoder deadtime break" data-keys="duty-cycle,ic,oc,encoder-mode,cuadratura,pulse-width,medicion-frecuencia,motor-control,deadtime,break-input">
@@ -1285,6 +1374,10 @@ HAL_GPIO_TogglePin(DEBUG_GPIO_Port, DEBUG_Pin);
             <div>
               <label for="timArr">ARR</label>
               <input id="timArr" type="number" value="199" />
+            </div>
+            <div>
+              <label for="timCnt0">CNT inicial</label>
+              <input id="timCnt0" type="number" value="0" />
             </div>
             <div>
               <label for="timMode">Modo</label>
@@ -1794,10 +1887,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
         const fclk = Number(document.getElementById('timClk').value);
         const psc = Number(document.getElementById('timPsc').value);
         const arr = Number(document.getElementById('timArr').value);
+        const cnt0 = Number(document.getElementById('timCnt0').value);
         const mode = document.getElementById('timMode').value;
         const out = document.getElementById('timerResult');
 
-        if (!(fclk > 0) || psc < 0 || arr < 0) {
+        if (!(fclk > 0) || psc < 0 || arr < 0 || cnt0 < 0 || cnt0 > arr) {
           out.textContent = 'Valores invalidos.';
           return;
         }
@@ -1810,10 +1904,18 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
         }
         const periodUs = (1 / fupdate) * 1e6;
 
+        let firstTicks = (arr - cnt0 + 1);
+        if (mode === 'center') {
+          // En center-aligned el primer update depende tambien de direccion/estado inicial.
+          firstTicks = firstTicks * 2;
+        }
+        const firstUpdateUs = (firstTicks / fcnt) * 1e6;
+
         out.textContent =
           'f_cnt = ' + fcnt.toFixed(3) + ' Hz\n' +
           'f_update = ' + fupdate.toFixed(3) + ' Hz\n' +
-          'T_update = ' + periodUs.toFixed(3) + ' us\n\n' +
+          'T_update = ' + periodUs.toFixed(3) + ' us\n' +
+          'Primer update desde CNT0 = ' + firstUpdateUs.toFixed(3) + ' us\n\n' +
           'Nota: valida en RM0440 el comportamiento exacto segun modo y timer usado.';
       }
 
@@ -1984,6 +2086,161 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
       } else {
         updateActiveFromScroll();
       }
+    })();
+  </script>
+
+  <script>
+    // ── Tooltips automáticos de siglas ──
+    // Mapa: sigla (en mayúsculas) -> texto del tooltip
+    const ACRONYM_MAP = {
+      'MCU':    'Microcontroller Unit — microcontrolador completo (CPU + memoria + periféricos)',
+      'CPU':    'Central Processing Unit — núcleo que ejecuta instrucciones',
+      'RCC':    'Reset and Clock Control — bloque que gestiona relojes y resets de periféricos',
+      'GPIO':   'General Purpose Input/Output — pines digitales configurables entrada/salida',
+      'AF':     'Alternate Function — función alternativa de un pin (SPI, UART, TIM…)',
+      'NVIC':   'Nested Vectored Interrupt Controller — controlador de interrupciones y prioridades',
+      'ISR':    'Interrupt Service Routine — rutina de código que atiende una interrupción',
+      'IRQ':    'Interrupt Request — solicitud de interrupción de un periférico',
+      'TIM':    'Timer — temporizador/contador hardware de alta precisión',
+      'PSC':    'Prescaler — divisor del reloj para bajar la frecuencia de trabajo del periférico',
+      'ARR':    'Auto-Reload Register — valor máximo del contador del timer (define periodo)',
+      'CCR':    'Capture/Compare Register — registro de comparación/captura del timer',
+      'CNT':    'Counter Register — valor actual del contador del timer',
+      'PWM':    'Pulse Width Modulation — control de duty cycle para potencia y actuadores',
+      'ADC':    'Analog-to-Digital Converter — convierte señal analógica en valor digital',
+      'DAC':    'Digital-to-Analog Converter — convierte valor digital en señal analógica',
+      'DMA':    'Direct Memory Access — transfiere datos periférico↔memoria sin cargar la CPU',
+      'DMAMUX': 'DMA Multiplexer — enruta solicitudes de periféricos a canales DMA con flexibilidad',
+      'SPI':    'Serial Peripheral Interface — bus serie síncrono de alta velocidad',
+      'I2C':    'Inter-Integrated Circuit — bus serie para sensores y periféricos lentos/medios',
+      'UART':   'Universal Asynchronous Receiver-Transmitter — comunicación serie asíncrona',
+      'USART':  'Universal Synchronous/Asynchronous Receiver-Transmitter — versión síncrona de UART',
+      'RTC':    'Real-Time Clock — reloj/calendario de bajo consumo, persiste con VBAT',
+      'IWDG':   'Independent Watchdog — supervisor hardware robusto frente a fallos de clock',
+      'WWDG':   'Window Watchdog — supervisor con ventana temporal; detecta refresco tardío o prematuro',
+      'RDP':    'Read-out Protection — bloquea extracción del firmware por debug/JTAG',
+      'WRP':    'Write Protection — protege páginas de Flash contra escritura/borrado',
+      'PCROP':  'Proprietary Code Read-Out Protection — protege lectura de código propietario',
+      'VDD':    'Voltage Digital Domain — raíl de alimentación digital del MCU (normalmente 3.3 V)',
+      'VDDA':   'Voltage Digital Domain Analog — raíl de alimentación para bloques analógicos (ADC, DAC, OPAMP)',
+      'GND':    'Ground — referencia de potencial común (0 V) del circuito',
+      'PLL':    'Phase-Locked Loop — circuito que multiplica una frecuencia de referencia',
+      'SYSCLK': 'System Clock — reloj principal del núcleo Cortex-M',
+      'HCLK':   'AHB Clock — reloj del bus AHB (CPU, DMA, Flash)',
+      'PCLK':   'APB Clock — reloj del bus APB (timers, UART, SPI, I2C…)',
+      'AHB':    'Advanced High-performance Bus — bus principal de alta velocidad del ARM',
+      'APB':    'Advanced Peripheral Bus — bus de periféricos de velocidad media/baja',
+      'EXTI':   'External Interrupt — línea de interrupción externa por flanco de pin GPIO',
+      'SWD':    'Serial Wire Debug — interfaz de depuración/programación de 2 hilos de ARM',
+      'JTAG':   'Joint Test Action Group — interfaz estándar de depuración y test de chips',
+      'FPU':    'Floating-Point Unit — unidad hardware para operaciones en punto flotante',
+      'DSP':    'Digital Signal Processing — procesado matemático de señales digitales',
+      'FMAC':   'Filter Math Accelerator — acelerador hardware para filtros FIR/IIR',
+      'CORDIC': 'COordinate Rotation DIgital Computer — acelerador para funciones trigonométricas',
+      'OPAMP':  'Operational Amplifier — amplificador operacional integrado en el chip',
+      'PGA':    'Programmable Gain Amplifier — amplificador de ganancia configurable por software',
+      'COMP':   'Comparator — comparador analógico integrado para detección de umbral',
+      'VREFBUF':'Voltage Reference Buffer — buffer de referencia de tensión interna configurable',
+      'FDCAN':  'Flexible Data-rate CAN — bus CAN con soporte de tasas de datos elevadas',
+      'CRC':    'Cyclic Redundancy Check — algoritmo para verificar integridad de datos',
+      'RNG':    'Random Number Generator — generador hardware de números aleatorios',
+      'UID':    'Unique IDentifier — identificador único de 96 bits grabado en fábrica en cada chip',
+      'SRAM':   'Static Random-Access Memory — memoria RAM estática de acceso rápido',
+      'CCM':    'Core-Coupled Memory — memoria SRAM ligada directamente al núcleo, latencia cero',
+      'BOR':    'Brown-Out Reset — reset automático cuando la tensión cae por debajo del umbral',
+      'PDR':    'Power-Down Reset — reset por tensión de alimentación demasiado baja',
+      'EGR':    'Event Generation Register — registro para forzar eventos/actualizaciones por software',
+      'DIER':   'DMA/Interrupt Enable Register — registro para habilitar IRQ y DMA del timer',
+      'SR':     'Status Register — registro de flags de estado (UIF, CCxIF…)',
+      'CR1':    'Control Register 1 — registro con bits de control principal del periférico',
+      'CCER':   'Capture/Compare Enable Register — habilita y configura canales del timer',
+      'CCMR':   'Capture/Compare Mode Register — configura modo output/input compare del timer',
+      'BDTR':   'Break and Dead-Time Register — configura dead-time y break en timers avanzados',
+      'MODER':  'Mode Register — selecciona el modo de cada pin GPIO (input/output/AF/analog)',
+      'ODR':    'Output Data Register — registro de salida digital de un puerto GPIO',
+      'IDR':    'Input Data Register — registro de lectura del nivel lógico de entrada GPIO',
+      'BSRR':   'Bit Set/Reset Register — registro para escritura atómica de pines GPIO',
+      'PUPDR':  'Pull-Up/Pull-Down Register — configura resistencias internas pull-up / pull-down',
+      'OTYPER': 'Output Type Register — selecciona push-pull u open-drain en GPIO',
+      'AFRL':   'Alternate Function Register Low — selecciona función alternativa para pines 0-7',
+      'AFRH':   'Alternate Function Register High — selecciona función alternativa para pines 8-15',
+      'HAL':    'Hardware Abstraction Layer — capa de abstracción de hardware de ST (API de alto nivel)',
+      'LL':     'Low-Layer — API de bajo nivel de ST, más cercana al hardware que HAL',
+      'TRGO':   'Trigger Output — salida trigger del timer para sincronizar ADC u otro periférico',
+      'ENOB':   'Effective Number Of Bits — resolución efectiva real del ADC incluyendo ruido',
+      'VCO':    'Voltage-Controlled Oscillator — oscilador interno del PLL cuya frecuencia varía con tensión',
+      'HSI':    'High-Speed Internal oscillator — oscilador RC interno de alta velocidad (~16 MHz)',
+      'HSE':    'High-Speed External oscillator — oscilador externo de alta velocidad (cristal)',
+      'LSI':    'Low-Speed Internal oscillator — oscilador RC interno lento (~32 kHz), para IWDG/RTC',
+      'LSE':    'Low-Speed External oscillator — cristal externo lento (32.768 kHz) para RTC preciso',
+      'ESD':    'Electrostatic Discharge — descarga electrostática que puede dañar el chip',
+      'EMI':    'Electro-Magnetic Interference — interferencia electromagnética que perturba el circuito',
+      'OTA':    'Over-The-Air — actualización de firmware de forma inalámbrica',
+      'CAN':    'Controller Area Network — bus de comunicación serie robusto para entornos industriales/automoción',
+      'USB':    'Universal Serial Bus — bus de comunicación y alimentación universal',
+      'LPUART': 'Low-Power UART — UART optimizada para bajo consumo energético',
+      'PCB':    'Printed Circuit Board — placa de circuito impreso',
+      'MVP':    'Minimum Viable Product — versión mínima funcional de un producto',
+      'VBAT':   'Voltage Battery — pin de alimentación para dominio backup (RTC, registros de respaldo)',
+      'AN':     'Application Note — nota de aplicación técnica publicada por ST',
+      'RM0440': 'Reference Manual 0440 — manual de referencia completo de la serie STM32G4',
+    };
+
+    (function markAcronyms() {
+      // Nodos de texto donde buscar siglas (excluimos script, style, pre, code, input, select, textarea, abbr)
+      const SKIP_TAGS = new Set(['SCRIPT','STYLE','PRE','CODE','INPUT','SELECT','TEXTAREA','ABBR','BUTTON']);
+
+      // Construir regex: primero las más largas para evitar reemplazar sub-cadenas de siglas más largas
+      const keys = Object.keys(ACRONYM_MAP).sort((a, b) => b.length - a.length);
+      // Escapamos caracteres especiales de regex
+      const escaped = keys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      // Buscamos la sigla como palabra completa (admitimos / entre dos siglas: ISR/IRQ)
+      const pattern = new RegExp('\\b(' + escaped.join('|') + ')\\b', 'g');
+
+      function processNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.nodeValue;
+          if (!pattern.test(text)) return;
+          pattern.lastIndex = 0;
+
+          const frag = document.createDocumentFragment();
+          let last = 0;
+          let m;
+
+          while ((m = pattern.exec(text)) !== null) {
+            const sigla = m[1];
+            const tip = ACRONYM_MAP[sigla];
+            if (!tip) continue;
+
+            if (m.index > last) {
+              frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+            }
+
+            const abbr = document.createElement('abbr');
+            abbr.dataset.tip = tip;
+            abbr.textContent = sigla;
+            frag.appendChild(abbr);
+
+            last = m.index + sigla.length;
+          }
+
+          if (last === 0) return; // nada que reemplazar
+          if (last < text.length) {
+            frag.appendChild(document.createTextNode(text.slice(last)));
+          }
+
+          node.parentNode.replaceChild(frag, node);
+          return;
+        }
+
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (SKIP_TAGS.has(node.tagName)) return;
+          // Clonamos lista de hijos porque vamos a mutar el DOM
+          Array.from(node.childNodes).forEach(processNode);
+        }
+      }
+
+      processNode(document.getElementById('contentRoot'));
     })();
   </script>
 </body>

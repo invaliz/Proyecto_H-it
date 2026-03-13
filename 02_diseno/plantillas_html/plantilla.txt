@@ -1,0 +1,63 @@
+Plantilla: plantilla.html
+
+Propósito
+- Esta plantilla (plantilla.html) es una base genérica para documentos con una barra lateral (TOC), secciones principales y tarjetas (cards) con variantes de color.
+- Usa esta plantilla cuando quieras volcar contenido estructurado (apartados, tarjetas, notas destacadas) con estilos ya definidos.
+
+Archivos que incluir en el chat
+- plantilla.html  -> el archivo HTML de la plantilla.
+- plantilla.txt  -> este documento: explica dónde editar y cómo pasar contenido al asistente.
+
+Cómo usar la plantilla (qué editar y dónde)
+- Título de página: editar el texto en el <h1> del header o cambiar el <title> en el <head>.
+  - Buscar 'tituloPagina' en el HTML y sustituir por el título deseado.
+- Footer: sustituir 'TextoFooter' por el texto que quieres mostrar en el pie.
+- Apartados/Secciones: las secciones son id="apartado1", apartado2, ...
+  - Para añadir/editar contenido, edita el bloque <section id="apartadoX" class="section">...</section> dentro de <main>.
+  - Para que aparezca en la barra lateral, añade/edita el <li data-target="apartadoX">apartadoX</li> en la lista #toc2.
+
+Tarjetas (cards)
+- Estilo principal: card variant-2 es la única variante utilizada; copia su estructura para nuevas tarjetas.
+  - Ejemplo: <div class="card variant-2"><h3>Título</h3><p>Texto</p></div>
+- Tarjetas de color (notas)
+  - Clases: color-card + modificadores: yellow, green, red, small, tall, bordered, soft.
+  - Usa note-contrast en la misma etiqueta para asegurar texto de alto contraste.
+  - Ejemplo: <div class="color-card tall yellow note-contrast">targeta_color_1</div>
+  - Si quieres otras variaciones, duplica la clase color-card y modifica en el CSS.
+
+Variables de estilo rápidas
+- En la cabecera CSS (bloque :root) hay variables para cambiar colores globales:
+  - --note-yellow, --note-green, --note-red — ajustar éstos cambia bordes/acentos de las notas.
+  - --accent, --accent-2 — acentos globales para títulos/TOC.
+
+Fuentes
+- Actualmente la plantilla usa fuentes sistema (Segoe UI, Roboto, Arial) y en .note-contrast propone Inter como preferida.
+- Para incluir Inter desde Google Fonts, añade en el <head> antes del CSS:
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  y luego en el CSS confirma font-family: Inter, ... en .note-contrast.
+
+Dónde colocar datos dinámicos
+- Reemplaza textos en las secciones y tarjetas por el contenido final.
+- Si quieres importar tablas o contenido externo, pégalo dentro de la sección correspondiente (usar <table> o HTML válido).
+
+Extensiones y personalizaciones rápidas
+- Añadir nuevas secciones: copiar un <section> y añadir su <li> en #toc2 con el mismo data-target.
+- Añadir nuevas tarjetas: copiar div.card.variant-2 o div.color-card ... y ajustar clases.
+- Cambiar tonos: editar las variables en :root o los gradientes en las reglas .color-card.*.
+
+Cómo pasar esto al asistente en futuros chats
+1) Adjunta ambos archivos (plantilla.html y plantilla.txt) en el chat.
+2) Indica la acción que quieres: por ejemplo "Sustituye los apartados por este contenido", o "Aplica estos datos a las tarjetas de color".
+3) Si quieres mapeos concretos, envía un JSON corto o lista con pares: {"apartado1":"Texto...","tituloPagina":"Mi título"} o similar.
+4) Para cambios de estilo (colores, fuente, contraste), indica qué variable quieres cambiar (--note-yellow: #FFCC00) o pásame la regla CSS deseada.
+
+Buenas prácticas
+- Mantén las ids de secciones estables si vas a pedir al asistente que actualice contenido automáticamente.
+- Usa note-contrast en todas las notas para asegurar legibilidad.
+- Documenta en comentarios (HTML) cualquier reemplazo automático que haya que respetar.
+
+Ejemplo mínimo de petición al asistente
+- "Te adjunto plantilla.html y plantilla.txt. Reemplaza apartado1 con el texto X, añade una tarjeta roja con texto Y y actualiza el título por Z."
+
+Fin
+Mantén este plantilla.txt junto a plantilla.html y pásamelos en futuros chats para acelerar integraciones y ediciones.
